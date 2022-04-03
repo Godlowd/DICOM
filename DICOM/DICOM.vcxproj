@@ -32,7 +32,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>quick</QtModules>
+    <QtModules>core;xml;gui;widgets;qml;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -92,9 +92,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DCDetailInfoItemDelegate.cpp" />
+    <ClCompile Include="DCDetailInfoModel.cpp" />
+    <ClCompile Include="DCDicomFileModel.cpp" />
+    <ClCompile Include="DCListView.cpp" />
+    <ClCompile Include="DCListWidgetItem.cpp" />
+    <ClCompile Include="DCReader.cpp" />
+    <ClCompile Include="DCScopeModel.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainWidget.cpp" />
     <QtRcc Include="qml.qrc" />
+    <None Include="cpp.hint" />
     <None Include="main.qml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommonDefine.h" />
+    <ClInclude Include="DCDetailInfoItemDelegate.h" />
+    <ClInclude Include="DCDetailInfoModel.h" />
+    <ClInclude Include="DCDetailInfoStruct.h" />
+    <ClInclude Include="DCDicomFileModel.h" />
+    <ClInclude Include="DCListView.h" />
+    <ClInclude Include="DCListWidgetItem.h" />
+    <ClInclude Include="DCReader.h" />
+    <ClInclude Include="DCScopeModel.h" />
+    <QtMoc Include="MainWidget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
