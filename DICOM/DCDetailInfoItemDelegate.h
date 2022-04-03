@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QStyledItemDelegate>
 #include "DCDetailInfoModel.h"
 class DCDetailInfoItemDelegate :

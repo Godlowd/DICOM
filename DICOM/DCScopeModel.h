@@ -13,14 +13,27 @@ public:
 	DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name);
 
 public:
+	// @brief 添加指定的key到队列末尾
+	// @param key 要添加的key
 	void addNewTag(DcmTagKey &key);
-	void removeTag(DcmTagKey &key);
 
+	// @brief 添加指定的key到指定的位置
+	// @param key 要添加的key
+	// @param pos 要添加的key的位置
+	void addNewTag(DcmTagKey &key, int pos);
+
+	// @brief 移除指定位置的tag
+	// @param pos 要移除的key的位置
+	void removeTag(int pos);
+
+	// @brief 获取该scope展示在列表中的名字
 	std::string getName();
+	// @brief 设置该scope展示在列表中的名字
 	void setName(std::string name);
 
+	// @brief 从指定的fileModel中加载这个scope的所有的tag对应的数据
 	void DCScopeModel::loadDetailInfo(DCDicomFileModel *fileModel);
-
+	// @brief 获取tag对应的数据
 	const std::vector<DCDetailInfo> DCScopeModel::getDetailInfoArray();
 
 public:

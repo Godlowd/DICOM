@@ -11,9 +11,12 @@ public:
 	DCDicomFileModel::DCDicomFileModel(DcmFileFormat dataSet);
 	void DCDicomFileModel::setDataSet(DcmFileFormat dataSet);
 
+	// @brief 根据指定的tag读取数据, 如果DICOM文件中对应的tag不存在则返回的DcmElement为null
+	// @param tags 要查询的数据对应的tag
 	std::vector<DcmElement *> DCDicomFileModel::getValueForTags(std::vector<DcmTagKey> tags);
 	DcmElement *DCDicomFileModel::getValueForTag(DcmTagKey tag);
 	std::string DCDicomFileModel::getStringForTag(DcmTagKey tag);
+
 private:
 	std::shared_ptr<DcmFileFormat> dataSet;
 };

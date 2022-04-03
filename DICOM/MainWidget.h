@@ -34,7 +34,9 @@ public slots:
 
 	void genSeriesData(std::vector<DCScopeModel*> scopeArray);
 
-	void pushBtnClicked();
+	// @brief 打开文件
+	void openFile();
+	
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCScopeModel *> scopeVector;
@@ -43,6 +45,9 @@ private:
 	DCListView *seriesListView;
 	DCDicomFileModel *fileModel;
 	DCDetailInfoItemDelegate *delegate;
+
+	// @brief 刷新seriesList和tagList
+	void refresh();
 };
 
 #endif // MAINWIDGET_H

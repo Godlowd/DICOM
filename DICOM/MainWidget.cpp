@@ -8,6 +8,7 @@
 #include "DCScopeModel.h"
 #include "CommonDefine.h"
 #include <QStandardItemModel>
+#include <QFileDialog>
 
 #define SERIES_LIST_WIDTH 150
 #define SERIES_LIST_HEIGHT 500
@@ -17,53 +18,50 @@ MainWidget::MainWidget():seriesVec()
 {
     setWindowTitle("DICOM");
     this->resize(1920,1080);
-	//// filemodel
-	//fileModel = new DCDicomFileModel();
+	// filemodel
+	fileModel = new DCDicomFileModel();
 
-	//// reader
-	//reader = new DCReader();
-	//reader->readFromFile("image-00000.dcm", fileModel);
+	// reader
+	reader = new DCReader();
+	/*reader->readFromFile("image-00000.dcm", fileModel);*/
+	reader->readFromFile("111.dcm", fileModel);
 
-	//seriesListView = new DCListView(this);
-	//seriesListView->move(SERIES_ORIGIN_X, SERIES_ORIGIN_Y);
-	//seriesListView->resize(SERIES_LIST_WIDTH, SERIES_LIST_HEIGHT);
-	//connect(seriesListView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateTagList(QModelIndex)));
+	seriesListView = new DCListView(this);
+	seriesListView->move(SERIES_ORIGIN_X, SERIES_ORIGIN_Y);
+	seriesListView->resize(SERIES_LIST_WIDTH, SERIES_LIST_HEIGHT);
+	connect(seriesListView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateTagList(QModelIndex)));
 
-	//// test data generation
-	//
+	// test data generation
+	
 
-	//DCScopeModel *scope = new DCScopeModel(CommonTag::STUDY_TAGS, "STUDY_TAGS");
-	//scope->loadDetailInfo(fileModel);
-	//scopeVector.push_back(scope);
+	DCScopeModel *scope = new DCScopeModel(CommonTag::STUDY_TAGS, "STUDY_TAGS");
+	scope->loadDetailInfo(fileModel);
+	scopeVector.push_back(scope);
 
-	//scope = new DCScopeModel(CommonTag::SERIES_TAGS, "SERIES_TAGS");
-	//scope->loadDetailInfo(fileModel);
-	//scopeVector.push_back(scope);
+	scope = new DCScopeModel(CommonTag::SERIES_TAGS, "SERIES_TAGS");
+	scope->loadDetailInfo(fileModel);
+	scopeVector.push_back(scope);
 
-	//scope = new DCScopeModel(CommonTag::PATIENT_TAGS, "PATIENT_TAGS");
-	//scope->loadDetailInfo(fileModel);
-	//scopeVector.push_back(scope);
+	scope = new DCScopeModel(CommonTag::PATIENT_TAGS, "PATIENT_TAGS");
+	scope->loadDetailInfo(fileModel);
+	scopeVector.push_back(scope);
 
-	//genSeriesData(scopeVector);
+	genSeriesData(scopeVector);
 
-	//tagList = new DCListView(this);
-	//tagList->move(SERIES_ORIGIN_X + SERIES_LIST_WIDTH + 30, SERIES_ORIGIN_Y);
-	//tagList->resize(700, 500);
-	//
-	//DCDetailInfoModel *model = new DCDetailInfoModel(scopeVector.front()->getDetailInfoArray());
-	//tagList->setModel(model);
+	tagList = new DCListView(this);
+	tagList->move(SERIES_ORIGIN_X + SERIES_LIST_WIDTH + 30, SERIES_ORIGIN_Y);
+	tagList->resize(700, 500);
+	
+	refresh();
 
-	//delegate = new DCDetailInfoItemDelegate(model);
-	//tagList->setItemDelegate(delegate);
-
-	//connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(ItemClicked(QModelIndex)));
+	connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(ItemClicked(QModelIndex)));
 
 	// add new series button
-	QPushButton *addNewSeriesBtn = new QPushButton("tet", this);
+	QPushButton *addNewSeriesBtn = new QPushButton("open file", this);
 	addNewSeriesBtn->move(SERIES_ORIGIN_X, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	addNewSeriesBtn->resize(100, 100);
+	addNewSeriesBtn->resize(100, 40);
 	addNewSeriesBtn->show();
-	QObject::connect(addNewSeriesBtn, SIGNAL(clicked()), this, SLOT(pushBtnClicked()));
+	QObject::connect(addNewSeriesBtn, SIGNAL(clicked()), this, SLOT(openFile()));
 }
 
 void MainWidget::ItemClicked(QModelIndex index)
@@ -90,7 +88,33 @@ void MainWidget::genSeriesData(std::vector<DCScopeModel *> scopeArray) {
 	seriesListView->setModel(model);
 }
 
-void MainWidget::pushBtnClicked()
+void MainWidget::openFile()
 {
-	int a = 0;
+	QString filePath = QFileDialog::getOpenFileName(
+		this, 
+		tr("choose a .dcm file"), 
+		reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/", 
+		tr("DICOM(*.dcm)"));
+
+	if (!filePath.isEmpty()) {
+		reader->readFromFile(filePath.toStdString(), fileModel);
+		refresh();
+	}
+	else {
+		return;
+	}
+}
+
+void MainWidget::refresh() {
+	if (fileModel != nullptr) {
+		for (auto scope : scopeVector) {
+			scope->loadDetailInfo(fileModel);
+		}
+		genSeriesData(scopeVector);
+
+		DCDetailInfoModel *model = new DCDetailInfoModel(scopeVector.front()->getDetailInfoArray());
+		tagList->setModel(model);
+		delegate = new DCDetailInfoItemDelegate(model);
+		tagList->setItemDelegate(delegate);
+	}
 }

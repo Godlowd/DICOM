@@ -25,3 +25,16 @@ void DCReader::readFromFile(std::string fileName, DCDicomFileModel *model)
 
 	}
 }
+DCReader::DCReader() :lastPath("") {
+
+}
+
+void DCReader::updatePath(std::string path)
+{
+	this->lastPath = path;
+}
+
+std::string DCReader::getPath()
+{
+	return lastPath;
+}

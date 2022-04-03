@@ -58,17 +58,11 @@
     <ClCompile Include="DCDetailInfoItemDelegate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DCListWidgetItem.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="MainWidget.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DCListWidgetItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCListView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -101,5 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="111.dcm" />
+    <None Include="dcmdata.dll" />
+    <None Include="image-00000.dcm" />
+    <None Include="oflog.dll" />
+    <None Include="ofstd.dll" />
   </ItemGroup>
 </Project>

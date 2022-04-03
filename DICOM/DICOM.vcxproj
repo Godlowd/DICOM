@@ -96,13 +96,17 @@
     <ClCompile Include="DCDetailInfoModel.cpp" />
     <ClCompile Include="DCDicomFileModel.cpp" />
     <ClCompile Include="DCListView.cpp" />
-    <ClCompile Include="DCListWidgetItem.cpp" />
     <ClCompile Include="DCReader.cpp" />
     <ClCompile Include="DCScopeModel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWidget.cpp" />
+    <None Include="oflog.dll" />
+    <None Include="ofstd.dll" />
     <QtRcc Include="qml.qrc" />
+    <None Include="111.dcm" />
     <None Include="cpp.hint" />
+    <None Include="dcmdata.dll" />
+    <None Include="image-00000.dcm" />
     <None Include="main.qml" />
   </ItemGroup>
   <ItemGroup>
@@ -112,7 +116,6 @@
     <ClInclude Include="DCDetailInfoStruct.h" />
     <ClInclude Include="DCDicomFileModel.h" />
     <ClInclude Include="DCListView.h" />
-    <ClInclude Include="DCListWidgetItem.h" />
     <ClInclude Include="DCReader.h" />
     <ClInclude Include="DCScopeModel.h" />
     <QtMoc Include="MainWidget.h" />
