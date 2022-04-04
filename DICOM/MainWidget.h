@@ -36,6 +36,9 @@ public slots:
 
 	// @brief 打开文件
 	void openFile();
+
+	// @brief 添加新的tag
+	void addNewTag();
 	
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;

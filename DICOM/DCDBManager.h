@@ -28,8 +28,8 @@ public:
 	void removeTag(DCScopeModel &scope, DcmTagKey &tagKey, int pos);
 
 private:
-	DCDBManager();
-	~DCDBManager();
+	DCDBManager::DCDBManager();
+	DCDBManager::~DCDBManager();
 
 	QSqlDatabase db;
 	QSqlQuery sqlQuery;

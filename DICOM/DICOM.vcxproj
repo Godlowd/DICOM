@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DCAddNewTagDialog.cpp" />
     <ClCompile Include="DCDBManager.cpp" />
     <ClCompile Include="DCDetailInfoItemDelegate.cpp" />
     <ClCompile Include="DCDetailInfoModel.cpp" />
@@ -113,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonDefine.h" />
+    <ClInclude Include="DCAddNewTagDialog.h" />
     <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDetailInfoItemDelegate.h" />
     <ClInclude Include="DCDetailInfoModel.h" />

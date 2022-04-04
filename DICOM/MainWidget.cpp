@@ -9,6 +9,7 @@
 #include "CommonDefine.h"
 #include <QStandardItemModel>
 #include <QFileDialog>
+#include "DCAddNewTagDialog.h"
 
 #define SERIES_LIST_WIDTH 150
 #define SERIES_LIST_HEIGHT 500
@@ -55,6 +56,13 @@ MainWidget::MainWidget():seriesVec()
 	addNewSeriesBtn->resize(100, 40);
 	addNewSeriesBtn->show();
 	QObject::connect(addNewSeriesBtn, SIGNAL(clicked()), this, SLOT(openFile()));
+
+	// add new tag button
+	QPushButton *addNewTagBtn = new QPushButton("+", this);
+	addNewTagBtn->move(SERIES_ORIGIN_X + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	addNewTagBtn->resize(100, 40);
+	addNewTagBtn->show();
+	QObject::connect(addNewTagBtn, SIGNAL(clicked()), this, SLOT(addNewTag()));
 }
 
 void MainWidget::ItemClicked(QModelIndex index)
@@ -96,6 +104,11 @@ void MainWidget::openFile()
 	else {
 		return;
 	}
+}
+
+void MainWidget::addNewTag() {
+	DCAddNewTagDialog *dialog = new DCAddNewTagDialog(this);
+	dialog->show();
 }
 
 void MainWidget::refresh() {

@@ -8,6 +8,9 @@
 #define TAGLIST_TABLE_NAME "TagListTable"
 #define RELATION_TABLE_NAME "SeriesTagRelationTable"
 
+std::string insertTemplateSQL(std::string tableName, std::vector<std::string> fields, std::vector<std::string> values);
+std::string selectTemplateSQL(const std::vector<std::string> fields, const std::string tableName);
+
 DCDBManager & DCDBManager::getInstance()
 {
 	static DCDBManager manager = DCDBManager();
@@ -132,7 +135,7 @@ void DCDBManager::removeTag(DCScopeModel & scope, DcmTagKey & tagKey, int pos)
 {
 }
 
-
+DCDBManager::DCDBManager(){}
 
 DCDBManager::~DCDBManager()
 {
