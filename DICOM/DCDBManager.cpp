@@ -1,6 +1,9 @@
 #include "DCDBManager.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <sstream>
+#include <iostream>
+
 #define SERIES_TABLE_NAME "SeriesTable"
 #define TAGLIST_TABLE_NAME "TagListTable"
 #define RELATION_TABLE_NAME "SeriesTagRelationTable"
@@ -37,7 +40,7 @@ DCDBManager & DCDBManager::getInstance()
 			std::string sql = "CREATE TABLE ";
 			manager.sqlQuery.exec(sql
 				.append(SERIES_TABLE_NAME)
-				.append("(ID INT PRIMARY KEY NOT NULL,DisplayName TEXT NOT NULL)")
+				.append("(ID INT PRIMARY KEY auto_increment NOT NULL,DisplayName TEXT NOT NULL)")
 				.c_str());
 		}
 
@@ -45,7 +48,7 @@ DCDBManager & DCDBManager::getInstance()
 			std::string sql = "CREATE TABLE ";
 			manager.sqlQuery.exec(sql
 				.append(TAGLIST_TABLE_NAME)
-				.append("(ID INT PRIMARY KEY NOT NULL,GROUP INT NOT NULL,ELEMENT INT NOT NULL, NAME TEXT)")
+				.append("(ID INT PRIMARY KEY auto_increment NOT NULL,Group INT NOT NULL,Element INT NOT NULL)")
 				.c_str());
 		}
 
@@ -53,7 +56,7 @@ DCDBManager & DCDBManager::getInstance()
 			std::string sql = "CREATE TABLE ";
 			manager.sqlQuery.exec(sql
 				.append(RELATION_TABLE_NAME)
-				.append("(SeriesID INT NOT NULL, TagID INT NOT NULL)")
+				.append("(SeriesID INT NOT NULL, TagID INT NOT NULL);")
 				.c_str());
 		}
 	}
@@ -61,31 +64,114 @@ DCDBManager & DCDBManager::getInstance()
 	return manager;
 }
 
-void DCDBManager::addNewScope(DCScopeModel & scope)
+void DCDBManager::addNewScope(std::string name)
 {
+	std::vector<std::string> fields = { "DisplayName" };
+	std::vector<std::string> values = { name };
+	getInstance().sqlQuery.exec(insertTemplateSQL(SERIES_TABLE_NAME, fields, values).c_str());
 }
 
-void DCDBManager::insertScope(DCScopeModel & scope, int pos)
+void DCDBManager::removeScope(std::string name)
 {
-}
-
-void DCDBManager::removeScope(DCScopeModel & scope, int pos)
-{
+	std::string sql = "DELETE FROM";
+	getInstance().sqlQuery.exec(sql
+		.append(SERIES_TABLE_NAME)
+		.append("WHERE DisplayName = ")
+		.append(name)
+		.c_str());
 }
 
 void DCDBManager::addNewTag(DCScopeModel & scope, DcmTagKey & tagKey)
 {
-}
+	std::string group = std::to_string(tagKey.getGroup());
+	std::string element = std::to_string(tagKey.getElement());
+	std::vector<std::string> tagFields = { "Group", "Element" };
+	std::vector<std::string> tagValues = { 
+		group,
+		element
+	};
+	
+	std::string condition = " WHERE ";
+	condition.append("Group = ");
+	condition.append(group);
+	condition.append(" AND ");
+	condition.append("Element = ");
+	condition.append(element);
+	condition.append(" ;");
 
-void DCDBManager::insertNewTag(DCScopeModel & scope, DcmTagKey & tagKey, int pos)
-{
+	// 插入新的tag前查询数据库中是否已有相同的tag
+	getInstance().sqlQuery.exec(
+		selectTemplateSQL(tagFields, TAGLIST_TABLE_NAME).append(condition)
+		.c_str());
+	
+	if (!getInstance().sqlQuery.size()) {
+		getInstance().sqlQuery.exec(insertTemplateSQL(TAGLIST_TABLE_NAME, tagFields, tagValues).c_str());
+	}
+
+	getInstance().sqlQuery.exec(
+		selectTemplateSQL(tagFields, TAGLIST_TABLE_NAME).append(condition)
+		.c_str());
+	std::string tagId = getInstance().sqlQuery.value(0).toString().toStdString();
+
+	stringstream ss;
+
 }
 
 void DCDBManager::removeTag(DCScopeModel & scope, DcmTagKey & tagKey, int pos)
 {
 }
 
+
+
 DCDBManager::~DCDBManager()
 {
 	getInstance().db.close();
+}
+
+std::string insertTemplateSQL(std::string tableName, std::vector<std::string> fields, std::vector<std::string> values) {
+	std::string sql = "";
+
+	if (fields.size() == values.size()) {
+		sql.append("INSERT INTO ");
+		sql.append(tableName);
+
+		sql.append("(");
+		for (int index = 0; index < fields.size(); index++) {
+			sql.append(fields.at(index));
+
+			if (index != fields.size() - 1) {
+				sql.append(", ");
+			}
+		}
+		sql.append(")");
+
+		sql.append(" VALUES ");
+
+		sql.append("(");
+		for (int index = 0; index < values.size(); index++) {
+			sql.append(values.at(index));
+
+			if (index != values.size() - 1) {
+				sql.append(", ");
+			}
+		}
+		sql.append(");");
+	}
+
+	return sql;
+}
+
+std::string selectTemplateSQL(const std::vector<std::string> fields, const std::string tableName) {
+	std::string sql = "SELECT ";
+	for (int index = 0; index < fields.size(); index++) {
+		sql.append(fields.at(index));
+		if (index != fields.size() - 1) {
+			sql.append(", ");
+		}
+	}
+
+	sql.append(" FROM");
+	sql.append(tableName);
+
+	return sql;
 }
