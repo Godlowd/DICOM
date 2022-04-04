@@ -101,6 +101,7 @@
     <ClCompile Include="DCScopeModel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWidget.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <None Include="oflog.dll" />
     <None Include="ofstd.dll" />
     <QtRcc Include="qml.qrc" />
@@ -120,6 +121,7 @@
     <ClInclude Include="DCListView.h" />
     <ClInclude Include="DCReader.h" />
     <ClInclude Include="DCScopeModel.h" />
+    <ClInclude Include="Utils.h" />
     <QtMoc Include="MainWidget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

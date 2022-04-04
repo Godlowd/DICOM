@@ -73,11 +73,10 @@ void DCDBManager::addNewScope(std::string name)
 
 void DCDBManager::removeScope(std::string name)
 {
-	std::string sql = "DELETE FROM";
-	getInstance().sqlQuery.exec(sql
-		.append(SERIES_TABLE_NAME)
-		.append("WHERE DisplayName = ")
-		.append(name)
+	std::stringstream ss;
+	ss << "DELETE FROM" << SERIES_TABLE_NAME << " WHERE DisplayName = " << name << std::endl;
+	getInstance().sqlQuery.exec(
+		ss.str()
 		.c_str());
 }
 
@@ -91,30 +90,42 @@ void DCDBManager::addNewTag(DCScopeModel & scope, DcmTagKey & tagKey)
 		element
 	};
 	
-	std::string condition = " WHERE ";
-	condition.append("Group = ");
-	condition.append(group);
-	condition.append(" AND ");
-	condition.append("Element = ");
-	condition.append(element);
-	condition.append(" ;");
+	std::stringstream ss;
+	ss << selectTemplateSQL(tagFields, TAGLIST_TABLE_NAME) << " WHERE Group = " << group << " AND " << "Element = " << element << " ;" << std::endl;
 
 	// 插入新的tag前查询数据库中是否已有相同的tag
 	getInstance().sqlQuery.exec(
-		selectTemplateSQL(tagFields, TAGLIST_TABLE_NAME).append(condition)
+		ss.str()
 		.c_str());
 	
 	if (!getInstance().sqlQuery.size()) {
 		getInstance().sqlQuery.exec(insertTemplateSQL(TAGLIST_TABLE_NAME, tagFields, tagValues).c_str());
 	}
 
+	// 获取tag在数据库中对应的id
 	getInstance().sqlQuery.exec(
-		selectTemplateSQL(tagFields, TAGLIST_TABLE_NAME).append(condition)
+		ss.str()
 		.c_str());
 	std::string tagId = getInstance().sqlQuery.value(0).toString().toStdString();
 
-	stringstream ss;
+	std::vector<std::string> seriesFields = { "DisplayName" };
+	std::vector<std::string> seriesValues = { scope.getName() };
 
+	getInstance().sqlQuery.exec(insertTemplateSQL(SERIES_TABLE_NAME, seriesFields, seriesValues).c_str());
+
+	// 获取scope在数据库中对应的id
+	seriesFields = { "ID" };
+	ss.clear();
+	ss << selectTemplateSQL(seriesFields, SERIES_TABLE_NAME) << " WHERE DisplayName = " << scope.getName() << std::endl;
+	getInstance().sqlQuery.exec(
+		ss.str()
+		.c_str());
+	std::string seriesId = getInstance().sqlQuery.value(0).toString().toStdString();
+
+	// 插入新值到relation表中
+	std::vector<std::string> relationFields = { "SeriesID", "TagID" };
+	std::vector<std::string> relationValues = { seriesId, tagId };
+	getInstance().sqlQuery.exec(insertTemplateSQL(RELATION_TABLE_NAME, relationFields, relationValues).c_str());
 }
 
 void DCDBManager::removeTag(DCScopeModel & scope, DcmTagKey & tagKey, int pos)
