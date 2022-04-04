@@ -32,21 +32,14 @@ MainWidget::MainWidget():seriesVec()
 	connect(seriesListView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateTagList(QModelIndex)));
 
 	// test data generation
-	
-
 	DCScopeModel *scope = new DCScopeModel(CommonTag::STUDY_TAGS, "STUDY_TAGS");
-	scope->loadDetailInfo(fileModel);
 	scopeVector.push_back(scope);
 
 	scope = new DCScopeModel(CommonTag::SERIES_TAGS, "SERIES_TAGS");
-	scope->loadDetailInfo(fileModel);
 	scopeVector.push_back(scope);
 
 	scope = new DCScopeModel(CommonTag::PATIENT_TAGS, "PATIENT_TAGS");
-	scope->loadDetailInfo(fileModel);
 	scopeVector.push_back(scope);
-
-	genSeriesData(scopeVector);
 
 	tagList = new DCListView(this);
 	tagList->move(SERIES_ORIGIN_X + SERIES_LIST_WIDTH + 30, SERIES_ORIGIN_Y);

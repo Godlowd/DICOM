@@ -32,7 +32,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>core;xml;gui;widgets;qml;</QtModules>
+    <QtModules>core;xml;sql;gui;widgets;qml;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DCDBManager.cpp" />
     <ClCompile Include="DCDetailInfoItemDelegate.cpp" />
     <ClCompile Include="DCDetailInfoModel.cpp" />
     <ClCompile Include="DCDicomFileModel.cpp" />
@@ -111,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonDefine.h" />
+    <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDetailInfoItemDelegate.h" />
     <ClInclude Include="DCDetailInfoModel.h" />
     <ClInclude Include="DCDetailInfoStruct.h" />
