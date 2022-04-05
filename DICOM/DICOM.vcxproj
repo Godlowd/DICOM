@@ -114,7 +114,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonDefine.h" />
-    <ClInclude Include="DCAddNewTagDialog.h" />
+    <QtMoc Include="DCAddNewTagDialog.h" />
+    <ClInclude Include="DCAddNewTagProtocal.h" />
     <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDetailInfoItemDelegate.h" />
     <ClInclude Include="DCDetailInfoModel.h" />

@@ -4,13 +4,10 @@ DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name):ta
 {
 }
 
-void DCScopeModel::addNewTag(DcmTagKey & key)
+void DCScopeModel::addNewTag(DcmTagKey key)
 {
-	addNewTag(key, tagArray.size() - 1);
-}
-
-void DCScopeModel::addNewTag(DcmTagKey & key, int pos)
-{
+	tagArray.push_back(key);
+	dbManager->addNewTag(this->getName(), key);
 }
 
 void DCScopeModel::removeTag(int pos)
@@ -18,7 +15,7 @@ void DCScopeModel::removeTag(int pos)
 	
 }
 
-std::string DCScopeModel::getName()
+std::string DCScopeModel::getName() const
 {
 	return displayName;
 }

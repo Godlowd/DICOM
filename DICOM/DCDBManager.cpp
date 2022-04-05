@@ -3,6 +3,9 @@
 #include <QSqlRecord>
 #include <sstream>
 #include <iostream>
+#include "dcmtk/dcmdata/dctk.h"
+#include <vector>
+#include <QVariant>
 
 #define SERIES_TABLE_NAME "SeriesTable"
 #define TAGLIST_TABLE_NAME "TagListTable"
@@ -11,13 +14,13 @@
 std::string insertTemplateSQL(std::string tableName, std::vector<std::string> fields, std::vector<std::string> values);
 std::string selectTemplateSQL(const std::vector<std::string> fields, const std::string tableName);
 
-DCDBManager & DCDBManager::getInstance()
+DCDBManager &DCDBManager::getInstance()
 {
 	static DCDBManager manager = DCDBManager();
 	manager.db = QSqlDatabase::addDatabase("QSQLITE");
 	manager.sqlQuery = QSqlQuery(manager.db);
-	db.setDatabaseName("Dicom.db");
-	if (db.open()) {
+	manager.db.setDatabaseName("Dicom.db");
+	if (manager.db.open()) {
 		// 判断是否当前数据库中含有SeriesTable与TagListTable, 如果没有则创建
 		manager.sqlQuery.exec("select name from sqlite_master where type='table' order by name;");
 		bool hasSeriesTable = false;
@@ -83,7 +86,7 @@ void DCDBManager::removeScope(std::string name)
 		.c_str());
 }
 
-void DCDBManager::addNewTag(DCScopeModel & scope, DcmTagKey & tagKey)
+void DCDBManager::addNewTag(std::string scopeName, const DcmTagKey tagKey)
 {
 	std::string group = std::to_string(tagKey.getGroup());
 	std::string element = std::to_string(tagKey.getElement());
@@ -112,14 +115,14 @@ void DCDBManager::addNewTag(DCScopeModel & scope, DcmTagKey & tagKey)
 	std::string tagId = getInstance().sqlQuery.value(0).toString().toStdString();
 
 	std::vector<std::string> seriesFields = { "DisplayName" };
-	std::vector<std::string> seriesValues = { scope.getName() };
+	std::vector<std::string> seriesValues = { scopeName };
 
 	getInstance().sqlQuery.exec(insertTemplateSQL(SERIES_TABLE_NAME, seriesFields, seriesValues).c_str());
 
 	// 获取scope在数据库中对应的id
 	seriesFields = { "ID" };
 	ss.clear();
-	ss << selectTemplateSQL(seriesFields, SERIES_TABLE_NAME) << " WHERE DisplayName = " << scope.getName() << std::endl;
+	ss << selectTemplateSQL(seriesFields, SERIES_TABLE_NAME) << " WHERE DisplayName = " << scopeName << std::endl;
 	getInstance().sqlQuery.exec(
 		ss.str()
 		.c_str());
@@ -131,9 +134,6 @@ void DCDBManager::addNewTag(DCScopeModel & scope, DcmTagKey & tagKey)
 	getInstance().sqlQuery.exec(insertTemplateSQL(RELATION_TABLE_NAME, relationFields, relationValues).c_str());
 }
 
-void DCDBManager::removeTag(DCScopeModel & scope, DcmTagKey & tagKey, int pos)
-{
-}
 
 DCDBManager::DCDBManager(){}
 

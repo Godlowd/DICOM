@@ -18,7 +18,7 @@
 MainWidget::MainWidget():seriesVec()
 {
     setWindowTitle("DICOM");
-    this->resize(1920,1080);
+    this->resize(1500,800);
 	// filemodel
 	fileModel = new DCDicomFileModel();
 
@@ -77,7 +77,7 @@ void MainWidget::updateTagList(QModelIndex index) {
 	DCDetailInfoModel *model = new DCDetailInfoModel(scope->getDetailInfoArray());
 	delegate->model = model;
 	tagList->setModel(model);  
-	 
+	currentModel = scope;
 }
 
 void MainWidget::genSeriesData(std::vector<DCScopeModel *> scopeArray) {
@@ -107,7 +107,7 @@ void MainWidget::openFile()
 }
 
 void MainWidget::addNewTag() {
-	DCAddNewTagDialog *dialog = new DCAddNewTagDialog(this);
+	DCAddNewTagDialog *dialog = new DCAddNewTagDialog(this, this);
 	dialog->show();
 }
 
@@ -123,4 +123,12 @@ void MainWidget::refresh() {
 		delegate = new DCDetailInfoItemDelegate(model);
 		tagList->setItemDelegate(delegate);
 	}
+}
+
+void MainWidget::onClickConfirmBtn(int group, int element)
+{
+	DcmTagKey *key = new DcmTagKey(group, element);
+	currentModel->addNewTag(*key);
+	refresh();
+	return;
 }

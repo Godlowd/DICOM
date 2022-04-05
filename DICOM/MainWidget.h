@@ -21,8 +21,9 @@
 #include "DCReader.h"
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
+#include "DCAddNewTagProtocal.h"
 
-class MainWidget : public QWidget
+class MainWidget : public QWidget, public DCAddNewTagProtocol
 {
     Q_OBJECT
 public:
@@ -49,8 +50,13 @@ private:
 	DCDicomFileModel *fileModel;
 	DCDetailInfoItemDelegate *delegate;
 
+	// 当前列表选择的scope
+	DCScopeModel *currentModel;
+
 	// @brief 刷新seriesList和tagList
 	void refresh();
+
+	void onClickConfirmBtn(int group, int element) override;
 };
 
 #endif // MAINWIDGET_H

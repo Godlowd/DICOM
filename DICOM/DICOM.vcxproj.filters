@@ -32,6 +32,9 @@
     <Filter Include="Source Files\DB">
       <UniqueIdentifier>{be7e629f-d29d-4c58-9b2c-8651bc4c366e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Interface">
+      <UniqueIdentifier>{d8fc410e-3a21-4737-8ecc-9c73869e1b4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -105,12 +108,15 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DCAddNewTagDialog.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DCAddNewTagProtocal.h">
+      <Filter>Header Files\Interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MainWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DCAddNewTagDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

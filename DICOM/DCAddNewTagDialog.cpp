@@ -1,8 +1,10 @@
 #include "DCAddNewTagDialog.h"
 #include <QRegExpValidator>
+#include <string>
 
-DCAddNewTagDialog::DCAddNewTagDialog(QWidget *parent) :QDialog(parent) {
+DCAddNewTagDialog::DCAddNewTagDialog(QWidget *parent, DCAddNewTagProtocol *delegate) :QDialog(parent), delegate(delegate) {
 	this->resize(320, 180);
+	this->setAttribute(Qt::WA_DeleteOnClose, true);
 
 	mainTitleLabel = new QLabel(this);
 	mainTitleLabel->setText("Please input GroupId and ElementId");
@@ -31,9 +33,28 @@ DCAddNewTagDialog::DCAddNewTagDialog(QWidget *parent) :QDialog(parent) {
 	confirmBtn->setText("Confirm");
 	confirmBtn->adjustSize();
 	confirmBtn->move((this->width()) / 2 - confirmBtn->width() - 8, elementInputField->y() + elementInputField->height() + 16);
+	connect(confirmBtn, SIGNAL(clicked()), this, SLOT(onClickConfirmBtn()));
 
 	cancelBtn = new QPushButton(this);
 	cancelBtn->setText("Cancel");
 	cancelBtn->adjustSize();
 	cancelBtn->move((this->width()) / 2 + 8, elementInputField->y() + elementInputField->height() + 16);
+	connect(cancelBtn, SIGNAL(clicked()), this, SLOT(closeDialog()));
+}
+
+void DCAddNewTagDialog::closeDialog()
+{
+	this->close();
+}
+
+void DCAddNewTagDialog::onClickConfirmBtn()
+{
+	delegate->onClickConfirmBtn(std::stoi(groupInputField->text().toStdString()), std::stoi(elementInputField->text().toStdString()));
+	this->close();
+}
+
+
+
+DCAddNewTagDialog::~DCAddNewTagDialog()
+{
 }

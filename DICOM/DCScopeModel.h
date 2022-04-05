@@ -5,6 +5,7 @@
 #include "dcmtk/dcmdata/dctk.h"
 #include "DCDetailInfoStruct.h"
 #include "DCDicomFileModel.h"
+#include "DCDBManager.h"
 
 // 自定义的tag序列，称之为scope
 class DCScopeModel : public QAbstractListModel
@@ -15,19 +16,14 @@ public:
 public:
 	// @brief 添加指定的key到队列末尾
 	// @param key 要添加的key
-	void addNewTag(DcmTagKey &key);
-
-	// @brief 添加指定的key到指定的位置
-	// @param key 要添加的key
-	// @param pos 要添加的key的位置
-	void addNewTag(DcmTagKey &key, int pos);
+	void addNewTag(DcmTagKey key);
 
 	// @brief 移除指定位置的tag
 	// @param pos 要移除的key的位置
 	void removeTag(int pos);
 
 	// @brief 获取该scope展示在列表中的名字
-	std::string getName();
+	std::string getName() const;
 	// @brief 设置该scope展示在列表中的名字
 	void setName(std::string name);
 
@@ -44,6 +40,7 @@ private:
 	std::vector<DcmTagKey> tagArray;
 	std::vector<DCDetailInfo> detailInfoArray;
 	/// 显示在seriesList的名称
-	std::string displayName;	
+	std::string displayName;
+	DCDBManager *dbManager;
 };
 
