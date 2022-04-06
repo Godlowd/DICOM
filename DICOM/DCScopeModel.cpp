@@ -16,12 +16,19 @@ void DCScopeModel::removeTag(DcmTagKey key)
 		DcmTagKey temp = tagArray.at(index);
 		if (temp.getElement() == key.getElement() && temp.getGroup() == key.getGroup()) {
 			tagArray.erase(tagArray.begin() + index);
+			if (dbManager->removeTag(this, key)) {
+
+			}
+			else {
+
+			}
 		}
 	}
 }
 
 void DCScopeModel::removeTag(int pos) {
-	tagArray.erase(tagArray.begin() + pos);
+	DcmTagKey key = tagArray.at(pos);
+	this->removeTag(key);
 }
 
 std::string DCScopeModel::getName() const

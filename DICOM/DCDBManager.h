@@ -28,8 +28,9 @@ public:
 
 	// @brief 移除指定位置的key
 	// @param scope 要移除的scope
-	// @param pos 要移除的key的位置
-	//void removeTag(DCScopeModel *scope, DcmTagKey &tagKey, int pos);
+	// @param tagKey 要移除的tagKey
+	// @return 删除操作是否成功
+	bool removeTag(DCScopeModel *scope, DcmTagKey &tagKey);
 
 	// @brief 一键删除数据库中所有表
 	void deleteAllTables();

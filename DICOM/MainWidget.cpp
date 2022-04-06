@@ -51,23 +51,23 @@ MainWidget::MainWidget():seriesVec()
 	QObject::connect(addNewSeriesBtn, SIGNAL(clicked()), this, SLOT(openFile()));
 
 	// add new tag button
-	QPushButton *addNewTagBtn = new QPushButton("+", this);
+	QPushButton *addNewTagBtn = new QPushButton("Add Tag", this);
 	addNewTagBtn->move(SERIES_ORIGIN_X + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	addNewTagBtn->resize(100, 40);
+	addNewTagBtn->adjustSize();
 	addNewTagBtn->show();
 	QObject::connect(addNewTagBtn, SIGNAL(clicked()), this, SLOT(showAddNewTagDialog()));
 
 	// remove tag button
-	QPushButton *removeTagBtn = new QPushButton("-", this);
+	QPushButton *removeTagBtn = new QPushButton("Remove Tag", this);
 	removeTagBtn->move(SERIES_ORIGIN_X + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	removeTagBtn->resize(100, 40);
+	removeTagBtn->adjustSize();
 	removeTagBtn->show();
 	QObject::connect(removeTagBtn, SIGNAL(clicked()), this, SLOT(removeTag()));
 
 	// remove all tables button
 	QPushButton *removeAllTableBtn = new QPushButton("DELETE TABLE", this);
 	removeAllTableBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	removeAllTableBtn->resize(100, 40);
+	removeAllTableBtn->adjustSize();
 	removeAllTableBtn->show();
 	QObject::connect(removeAllTableBtn, SIGNAL(clicked()), this, SLOT(removeAllTables()));
 

@@ -153,6 +153,36 @@ bool DCDBManager::addNewTag(std::string scopeName, const DcmTagKey tagKey)
 	return true;
 }
 
+bool DCDBManager::removeTag(DCScopeModel * scope, DcmTagKey & tagKey)
+{
+	std::stringstream ss;
+	QSqlQuery query = QSqlQuery(DCDBManager::db);
+	ss << selectTemplateSQL({"ID"}, TAGLIST_TABLE_NAME) << " where [Group] = " << tagKey.getGroup() << " and Element = " << tagKey.getElement() << std::endl;
+	
+	if (query.exec(ss.str().c_str())) {
+		query.next();
+		int id = query.value(0).toInt();
+		ss.str("");
+
+		ss << "delete from " << TAGLIST_TABLE_NAME << " where [Group] = " << tagKey.getGroup() << " and Element = " << tagKey.getElement() << std::endl;
+		if (!query.exec(ss.str().c_str())) {
+			return false;
+		}
+		else {
+			ss.str("");
+			ss << "delete from " << RELATION_TABLE_NAME << " where TagID = " << id << std::endl;
+			if (!query.exec(ss.str().c_str())) {
+				return false;
+			}
+		}
+	}
+	else {
+		return false;
+	}
+
+	return true;
+}
+
 void DCDBManager::deleteAllTables()
 {
 	QSqlQuery query = QSqlQuery(DCDBManager::db);
@@ -211,7 +241,7 @@ std::vector<DCScopeModel*> DCDBManager::loadAllScope()
 	if (query.exec(ss.str().c_str())) {
 		if (!DCDBManager::resultSize(query)) {
 			if (DCDBManager::getInstance().loadTestData()) {
-				getInstance().loadAllScope();
+				return getInstance().loadAllScope();
 			}
 		}
 		else {
