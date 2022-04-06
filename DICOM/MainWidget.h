@@ -54,6 +54,10 @@ public slots:
 
 	// @brief 添加新的scope
 	void addNewScope();
+
+	// @brief 移除选中的scope
+	void removeScope();
+
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCScopeModel *> scopeVector;

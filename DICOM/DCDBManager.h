@@ -19,7 +19,7 @@ public:
 
 	// @brief 移除指定位置的scope
 	// @param name 要移除的scope的名字
-	void removeScope(std::string name);
+	bool removeScope(std::string name);
 
 	// @brief 添加新的key到scope的末尾
 	// @param scopeName 要添加的目标scope的名字

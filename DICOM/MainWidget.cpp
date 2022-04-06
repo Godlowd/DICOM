@@ -78,7 +78,6 @@ MainWidget::MainWidget():seriesVec()
 	refreshBtn->adjustSize();
 	refreshBtn->show();
 	QObject::connect(refreshBtn, SIGNAL(clicked()), this, SLOT(refresh()));
-	refresh();
 
 	// add new scope button
 	QPushButton *newScopeBtn = new QPushButton("ADD NEW SCOPE", this);
@@ -86,6 +85,13 @@ MainWidget::MainWidget():seriesVec()
 	newScopeBtn->adjustSize();
 	newScopeBtn->show();
 	QObject::connect(newScopeBtn, SIGNAL(clicked()), this, SLOT(addNewScope()));
+
+	// remove scope button
+	QPushButton *removeScopeBtn = new QPushButton("REMOVE SCOPE", this);
+	removeScopeBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200 + 200 + 200 +200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	removeScopeBtn->adjustSize();
+	removeScopeBtn->show();
+	QObject::connect(removeScopeBtn, SIGNAL(clicked()), this, SLOT(removeScope()));
 	refresh();
 }
 
@@ -186,4 +192,14 @@ void MainWidget::DCAddNewScopeOnClickConfirmBtn(std::string scopeName)
 void MainWidget::addNewScope() {
 	DCAddNewScopeDialog *dialog = new DCAddNewScopeDialog(this, this);
 	dialog->show();
+}
+
+void MainWidget::removeScope()
+{
+	if (DCDBManager::getInstance().removeScope(currentModel->getName())) {
+		refresh();
+	}
+	else {
+		std::cout << "Fail to remove Scope: " << currentModel->getName() << std::endl;
+	}
 }

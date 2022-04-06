@@ -96,14 +96,25 @@ bool DCDBManager::addNewScope(std::string name)
 	return true;
 }
 
-void DCDBManager::removeScope(std::string name)
+bool DCDBManager::removeScope(std::string name)
 {
 	QSqlQuery query = QSqlQuery(DCDBManager::db);
 	std::stringstream ss;
-	ss << "DELETE FROM" << SERIES_TABLE_NAME << " WHERE ScopeName = " << name << std::endl;
-	query.exec(
+	ss << "DELETE FROM " << SERIES_TABLE_NAME << " WHERE ScopeName = \"" << name << "\"" << std::endl;
+	if (!query.exec(
 		ss.str()
-		.c_str());
+		.c_str())) {
+		return false;
+	}
+
+	ss.str("");
+	ss << "DELETE FROM " << RELATION_TABLE_NAME << " WHERE ScopeName = \"" << name << "\"" << std::endl;
+
+	if (!query.exec(ss.str().c_str())) {
+		return false;
+	}
+
+	return true;
 }
 
 bool DCDBManager::addNewTag(std::string scopeName, const DcmTagKey tagKey)
