@@ -6,10 +6,10 @@
 #include "DCReader.h"
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
-#include "CommonDefine.h"
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include "DCAddNewTagDialog.h"
+#include "DCDBManager.h"
 
 #define SERIES_LIST_WIDTH 150
 #define SERIES_LIST_HEIGHT 500
@@ -33,20 +33,13 @@ MainWidget::MainWidget():seriesVec()
 	connect(seriesListView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateTagList(QModelIndex)));
 
 	// test data generation
-	DCScopeModel *scope = new DCScopeModel(CommonTag::STUDY_TAGS, "STUDY_TAGS");
-	scopeVector.push_back(scope);
+	scopeVector = DCDBManager::getInstance().loadAllScope();
 
-	scope = new DCScopeModel(CommonTag::SERIES_TAGS, "SERIES_TAGS");
-	scopeVector.push_back(scope);
-
-	scope = new DCScopeModel(CommonTag::PATIENT_TAGS, "PATIENT_TAGS");
-	scopeVector.push_back(scope);
-
+	currentModel = scopeVector.at(0);
 	tagList = new DCListView(this);
 	tagList->move(SERIES_ORIGIN_X + SERIES_LIST_WIDTH + 30, SERIES_ORIGIN_Y);
 	tagList->resize(700, 500);
-	
-	refresh();
+	connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTagAt(QModelIndex)));
 
 	connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(ItemClicked(QModelIndex)));
 
@@ -62,7 +55,23 @@ MainWidget::MainWidget():seriesVec()
 	addNewTagBtn->move(SERIES_ORIGIN_X + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
 	addNewTagBtn->resize(100, 40);
 	addNewTagBtn->show();
-	QObject::connect(addNewTagBtn, SIGNAL(clicked()), this, SLOT(addNewTag()));
+	QObject::connect(addNewTagBtn, SIGNAL(clicked()), this, SLOT(showAddNewTagDialog()));
+
+	// remove tag button
+	QPushButton *removeTagBtn = new QPushButton("-", this);
+	removeTagBtn->move(SERIES_ORIGIN_X + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	removeTagBtn->resize(100, 40);
+	removeTagBtn->show();
+	QObject::connect(removeTagBtn, SIGNAL(clicked()), this, SLOT(removeTag()));
+
+	// remove all tables button
+	QPushButton *removeAllTableBtn = new QPushButton("DELETE TABLE", this);
+	removeAllTableBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	removeAllTableBtn->resize(100, 40);
+	removeAllTableBtn->show();
+	QObject::connect(removeAllTableBtn, SIGNAL(clicked()), this, SLOT(removeAllTables()));
+
+	refresh();
 }
 
 void MainWidget::ItemClicked(QModelIndex index)
@@ -76,8 +85,13 @@ void MainWidget::updateTagList(QModelIndex index) {
 	scope->loadDetailInfo(fileModel);
 	DCDetailInfoModel *model = new DCDetailInfoModel(scope->getDetailInfoArray());
 	delegate->model = model;
-	tagList->setModel(model);  
+	tagList->setModel(model); 
 	currentModel = scope;
+}
+
+void MainWidget::selectTagAt(QModelIndex index)
+{
+	tagList->selectedRow = index.row();
 }
 
 void MainWidget::genSeriesData(std::vector<DCScopeModel *> scopeArray) {
@@ -106,9 +120,20 @@ void MainWidget::openFile()
 	}
 }
 
-void MainWidget::addNewTag() {
+void MainWidget::showAddNewTagDialog() {
 	DCAddNewTagDialog *dialog = new DCAddNewTagDialog(this, this);
 	dialog->show();
+}
+
+void MainWidget::removeTag()
+{
+	currentModel->removeTag(tagList->selectedRow);
+	refresh();
+}
+
+void MainWidget::removeAllTables()
+{
+	DCDBManager::getInstance().deleteAllTables();
 }
 
 void MainWidget::refresh() {
@@ -118,7 +143,7 @@ void MainWidget::refresh() {
 		}
 		genSeriesData(scopeVector);
 
-		DCDetailInfoModel *model = new DCDetailInfoModel(scopeVector.front()->getDetailInfoArray());
+		DCDetailInfoModel *model = new DCDetailInfoModel(currentModel->getDetailInfoArray());
 		tagList->setModel(model);
 		delegate = new DCDetailInfoItemDelegate(model);
 		tagList->setItemDelegate(delegate);
@@ -127,8 +152,8 @@ void MainWidget::refresh() {
 
 void MainWidget::onClickConfirmBtn(int group, int element)
 {
-	DcmTagKey *key = new DcmTagKey(group, element);
-	currentModel->addNewTag(*key);
+	DcmTagKey key = DcmTagKey(group, element);
+	currentModel->addNewTag(key);
 	refresh();
 	return;
 }

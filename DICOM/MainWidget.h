@@ -32,6 +32,7 @@ public:
 public slots:
 	void ItemClicked(QModelIndex index);
 	void updateTagList(QModelIndex index);
+	void selectTagAt(QModelIndex index);
 
 	void genSeriesData(std::vector<DCScopeModel*> scopeArray);
 
@@ -39,8 +40,13 @@ public slots:
 	void openFile();
 
 	// @brief 添加新的tag
-	void addNewTag();
+	void showAddNewTagDialog();
 	
+	// @brief 移除指定位置的tag
+	void removeTag();
+
+	// @brief 清空数据库
+	void removeAllTables();
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCScopeModel *> scopeVector;

@@ -35,6 +35,9 @@
     <Filter Include="Header Files\Interface">
       <UniqueIdentifier>{d8fc410e-3a21-4737-8ecc-9c73869e1b4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DB">
+      <UniqueIdentifier>{756af755-ea33-47e2-8cd0-f5ed0add6d63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -102,14 +105,14 @@
     <ClInclude Include="DCDetailInfoStruct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DCDBManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DCAddNewTagProtocal.h">
       <Filter>Header Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="DCDBManager.h">
+      <Filter>Header Files\DB</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

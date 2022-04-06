@@ -19,7 +19,9 @@ public:
 	void addNewTag(DcmTagKey key);
 
 	// @brief 移除指定位置的tag
-	// @param pos 要移除的key的位置
+	// @param key 要移除的key
+	void removeTag(DcmTagKey key);
+
 	void removeTag(int pos);
 
 	// @brief 获取该scope展示在列表中的名字

@@ -42,4 +42,8 @@ namespace CommonTag {
 		DCM_SliceLocation,
 		DCM_BodyPartExamined
 	};
+
+	std::vector<std::vector<DcmTagKey>> PREDEFINED_TAGS = {
+		PATIENT_TAGS, STUDY_TAGS, SERIES_TAGS
+	};
 }

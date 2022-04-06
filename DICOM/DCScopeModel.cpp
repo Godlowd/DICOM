@@ -10,9 +10,18 @@ void DCScopeModel::addNewTag(DcmTagKey key)
 	dbManager->addNewTag(this->getName(), key);
 }
 
-void DCScopeModel::removeTag(int pos)
+void DCScopeModel::removeTag(DcmTagKey key)
 {
-	
+	for (int index = 0; index < tagArray.size(); index++) {
+		DcmTagKey temp = tagArray.at(index);
+		if (temp.getElement() == key.getElement() && temp.getGroup() == key.getGroup()) {
+			tagArray.erase(tagArray.begin() + index);
+		}
+	}
+}
+
+void DCScopeModel::removeTag(int pos) {
+	tagArray.erase(tagArray.begin() + pos);
 }
 
 std::string DCScopeModel::getName() const
