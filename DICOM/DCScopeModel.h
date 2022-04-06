@@ -12,6 +12,7 @@ class DCScopeModel : public QAbstractListModel
 {
 public:
 	DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name);
+	DCScopeModel::DCScopeModel(std::string name);
 
 public:
 	// @brief 添加指定的key到队列末尾

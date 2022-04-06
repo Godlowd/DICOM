@@ -83,12 +83,17 @@ DCDBManager &DCDBManager::getInstance()
 	return manager;
 }
 
-void DCDBManager::addNewScope(std::string name)
+bool DCDBManager::addNewScope(std::string name)
 {
 	QSqlQuery query = QSqlQuery(DCDBManager::db);
 	std::vector<std::string> fields = { "ScopeName" };
 	std::vector<std::string> values = { name };
-	query.exec(insertTemplateSQL(SERIES_TABLE_NAME, fields, values).c_str());
+
+	if (!query.exec(insertTemplateSQL(SERIES_TABLE_NAME, fields, values).c_str())) {
+		return false;
+	} 
+
+	return true;
 }
 
 void DCDBManager::removeScope(std::string name)

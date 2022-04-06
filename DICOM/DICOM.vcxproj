@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DCAddNewScopeDialog.cpp" />
     <ClCompile Include="DCAddNewTagDialog.cpp" />
     <ClCompile Include="DCDBManager.cpp" />
     <ClCompile Include="DCDetailInfoItemDelegate.cpp" />
@@ -115,6 +116,8 @@
   <ItemGroup>
     <ClInclude Include="CommonDefine.h" />
     <QtMoc Include="DCAddNewTagDialog.h" />
+    <QtMoc Include="DCAddNewScopeDialog.h" />
+    <ClInclude Include="DCAddNewScopeProtocol.h" />
     <ClInclude Include="DCAddNewTagProtocal.h" />
     <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDetailInfoItemDelegate.h" />

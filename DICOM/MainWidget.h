@@ -22,8 +22,9 @@
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
 #include "DCAddNewTagProtocal.h"
+#include "DCAddNewScopeProtocol.h"
 
-class MainWidget : public QWidget, public DCAddNewTagProtocol
+class MainWidget : public QWidget, public DCAddNewTagProtocol, public DCAddNewScopeProtocol
 {
     Q_OBJECT
 public:
@@ -47,6 +48,12 @@ public slots:
 
 	// @brief 清空数据库
 	void removeAllTables();
+
+	// @brief 刷新seriesList和tagList
+	void refresh();
+
+	// @brief 添加新的scope
+	void addNewScope();
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCScopeModel *> scopeVector;
@@ -59,10 +66,9 @@ private:
 	// 当前列表选择的scope
 	DCScopeModel *currentModel;
 
-	// @brief 刷新seriesList和tagList
-	void refresh();
-
 	void onClickConfirmBtn(int group, int element) override;
+
+	void DCAddNewScopeOnClickConfirmBtn(std::string scopeName) override;
 };
 
 #endif // MAINWIDGET_H

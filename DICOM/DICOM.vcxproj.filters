@@ -38,6 +38,9 @@
     <Filter Include="Header Files\DB">
       <UniqueIdentifier>{756af755-ea33-47e2-8cd0-f5ed0add6d63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{ffd8da26-e23a-42f4-a0ce-b9c1f3f875a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,11 +82,11 @@
     <ClCompile Include="DCAddNewTagDialog.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="DCAddNewScopeDialog.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DCListView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCDetailInfoModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -114,13 +117,22 @@
     <ClInclude Include="DCDBManager.h">
       <Filter>Header Files\DB</Filter>
     </ClInclude>
+    <ClInclude Include="DCListView.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="DCAddNewScopeProtocol.h">
+      <Filter>Header Files\Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MainWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="DCAddNewTagDialog.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="DCAddNewScopeDialog.h">
+      <Filter>Header Files\UI</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

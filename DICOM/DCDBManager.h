@@ -15,7 +15,7 @@ public:
 
 	// @brief 添加新的scope到末尾
 	// @param name 要添加的scope的名字
-	void addNewScope(std::string name);
+	bool addNewScope(std::string name);
 
 	// @brief 移除指定位置的scope
 	// @param name 要移除的scope的名字

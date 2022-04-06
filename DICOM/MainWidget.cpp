@@ -9,6 +9,7 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include "DCAddNewTagDialog.h"
+#include "DCAddNewScopeDialog.h"
 #include "DCDBManager.h"
 
 #define SERIES_LIST_WIDTH 150
@@ -71,6 +72,20 @@ MainWidget::MainWidget():seriesVec()
 	removeAllTableBtn->show();
 	QObject::connect(removeAllTableBtn, SIGNAL(clicked()), this, SLOT(removeAllTables()));
 
+	// refresh ui button
+	QPushButton *refreshBtn = new QPushButton("REFRESH", this);
+	refreshBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200+200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	refreshBtn->adjustSize();
+	refreshBtn->show();
+	QObject::connect(refreshBtn, SIGNAL(clicked()), this, SLOT(refresh()));
+	refresh();
+
+	// add new scope button
+	QPushButton *newScopeBtn = new QPushButton("ADD NEW SCOPE", this);
+	newScopeBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200 + 200+ 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
+	newScopeBtn->adjustSize();
+	newScopeBtn->show();
+	QObject::connect(newScopeBtn, SIGNAL(clicked()), this, SLOT(addNewScope()));
 	refresh();
 }
 
@@ -138,6 +153,10 @@ void MainWidget::removeAllTables()
 
 void MainWidget::refresh() {
 	if (fileModel != nullptr) {
+		scopeVector = DCDBManager::getInstance().loadAllScope();
+
+		currentModel = scopeVector.at(0);
+
 		for (auto scope : scopeVector) {
 			scope->loadDetailInfo(fileModel);
 		}
@@ -156,4 +175,15 @@ void MainWidget::onClickConfirmBtn(int group, int element)
 	currentModel->addNewTag(key);
 	refresh();
 	return;
+}
+
+void MainWidget::DCAddNewScopeOnClickConfirmBtn(std::string scopeName)
+{
+	DCDBManager::getInstance().addNewScope(scopeName);
+	refresh();
+}
+
+void MainWidget::addNewScope() {
+	DCAddNewScopeDialog *dialog = new DCAddNewScopeDialog(this, this);
+	dialog->show();
 }

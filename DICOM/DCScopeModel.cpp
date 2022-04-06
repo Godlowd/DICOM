@@ -4,6 +4,10 @@ DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name):ta
 {
 }
 
+DCScopeModel::DCScopeModel(std::string name):displayName(name)
+{
+}
+
 void DCScopeModel::addNewTag(DcmTagKey key)
 {
 	tagArray.push_back(key);
@@ -27,6 +31,10 @@ void DCScopeModel::removeTag(DcmTagKey key)
 }
 
 void DCScopeModel::removeTag(int pos) {
+	if (pos >= tagArray.size()) {
+		return;
+	}
+
 	DcmTagKey key = tagArray.at(pos);
 	this->removeTag(key);
 }
