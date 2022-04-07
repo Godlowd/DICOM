@@ -44,7 +44,6 @@ std::string DCScopeModel::getName() const
 	return displayName;
 }
 
-
 void DCScopeModel::setName(std::string name)
 {
 	displayName = name;
@@ -55,7 +54,18 @@ void DCScopeModel::loadDetailInfo(DCDicomFileModel *fileModel)
 	detailInfoArray.clear();
 	for (auto tagKey : tagArray) {
 		DcmElement *element = fileModel->getValueForTag(tagKey);
-		DCDetailInfo info = dcmElement2DetailInfo(element);
+
+		DCDetailInfo info;
+		if (element == nullptr) {
+			info = DCDetailInfo();
+			info.groupId = tagKey.getGroup();
+			info.tagId = tagKey.getElement();
+			info.value = "null";
+			info.valueType = "null";
+		}
+		else {
+			info = dcmElement2DetailInfo(element);
+		}
 		detailInfoArray.push_back(info);
 	}
 }

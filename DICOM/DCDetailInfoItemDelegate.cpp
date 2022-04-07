@@ -3,7 +3,7 @@
 #include <QPainter>
 
 #define CELL_WIDTH 600
-#define CELL_HEIGHT 32
+#define CELL_HEIGHT 40
 DCDetailInfoItemDelegate::DCDetailInfoItemDelegate(DCDetailInfoModel *model) :model(model) {
 
 }
