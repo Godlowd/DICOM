@@ -11,7 +11,7 @@
 #include "DCAddNewTagDialog.h"
 #include "DCAddNewScopeDialog.h"
 #include "DCDBManager.h"
-
+#include "RawDataReader.h"
 #define SERIES_LIST_WIDTH 150
 #define SERIES_LIST_HEIGHT 500
 #define SERIES_ORIGIN_X 16
@@ -126,15 +126,29 @@ void MainWidget::genSeriesData(std::vector<DCScopeModel *> scopeArray) {
 
 void MainWidget::openFile()
 {
+	//QString filePath = QFileDialog::getOpenFileName(
+	//	this, 
+	//	tr("choose a .dcm file"), 
+	//	reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/", 
+	//	tr("DICOM(*.dcm)"));
+
+	//if (!filePath.isEmpty()) {
+	//	reader->readFromFile(filePath.toStdString(), fileModel);
+	//	refresh();
+	//}
+	//else {
+	//	return;
+	//}
+
 	QString filePath = QFileDialog::getOpenFileName(
-		this, 
-		tr("choose a .dcm file"), 
-		reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/", 
-		tr("DICOM(*.dcm)"));
+		this,
+		tr("choose a dat file"),
+		reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/",
+		tr("DICOM(*.dat)"));
 
 	if (!filePath.isEmpty()) {
-		reader->readFromFile(filePath.toStdString(), fileModel);
-		refresh();
+		RawDataReader *rawReader = new RawDataReader(160, 160, 210);
+		rawReader->readRawDataFromFile(filePath.toStdString().c_str(), "float");
 	}
 	else {
 		return;
