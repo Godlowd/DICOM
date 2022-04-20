@@ -12,20 +12,19 @@ namespace CommonTag {
 	DCM_PatientBirthDate,
 	DCM_PatientBirthTime,
 	DCM_PatientSex,
-	DCM_PatientWeight,
-	DCM_PregnancyStatus
+	DCM_PatientSize,
+	DCM_PatientWeight
 	};
 
 	std::vector<DcmTagKey> STUDY_TAGS = {
 		DCM_AccessionNumber,
 		DCM_StudyID,
-		DCM_StudyInstanceUID,
 		DCM_StudyDate,
 		DCM_StudyTime,
-		DCM_ModalitiesInStudy,
-		DCM_BodyPartExamined,
+		DCM_ReferringPhysicianName,
 		DCM_StudyDescription,
-		DCM_PatientAge
+		DCM_PatientAge,
+		DCM_Radiopharmaceutical
 	};
 
 	std::vector<DcmTagKey> SERIES_TAGS = {

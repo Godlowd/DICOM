@@ -14,65 +14,95 @@
 #include <QFile>
 #include <QDataStream>
 #include <qwidget.h>
-#include "DCDetailInfoStruct.h"
-#include "DCDetailInfoModel.h"
-#include "DCListView.h"
-#include "DCDetailInfoItemDelegate.h"
-#include "DCReader.h"
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
 #include "DCAddNewTagProtocal.h"
 #include "DCAddNewScopeProtocol.h"
-
+#include "DCTabelWidget.h"
 class MainWidget : public QWidget, public DCAddNewTagProtocol, public DCAddNewScopeProtocol
 {
     Q_OBJECT
 public:
     MainWidget();
-
 public slots:
-	void ItemClicked(QModelIndex index);
-	void updateTagList(QModelIndex index);
-	void selectTagAt(QModelIndex index);
-
-	void genSeriesData(std::vector<DCScopeModel*> scopeArray);
 
 	// @brief 打开文件
 	void openFile();
 
 	// @brief 添加新的tag
 	void showAddNewTagDialog();
-	
-	// @brief 移除指定位置的tag
-	void removeTag();
 
-	// @brief 清空数据库
-	void removeAllTables();
+	void convertImgToJpeg();
 
-	// @brief 刷新seriesList和tagList
-	void refresh();
+	/**
+	 * @brief Compress the selected dicom file.
+	 * 
+	 */
+	void saveCompressedFile();
 
-	// @brief 添加新的scope
-	void addNewScope();
+	/**
+	 * @brief Decompress the selected dicom file.
+	 * 
+	 */
+	void saveDecompressedFile();
 
-	// @brief 移除选中的scope
-	void removeScope();
+	/**
+	 * @brief update table with file.
+	 * 
+	 * @param fileArray
+	 */
+	void updateView(std::vector<DCDicomFileModel> fileArray);
+
+	/**
+	 * @brief when user select a row in one of the three tables, select those rows which index are the same.
+	 * 
+	 * @param index selected index
+	 */
+	void sectionChoose(int index);
+
+	/**
+	 * @brief open a folder, read the dicom file in it and refresh three table.
+	 * 
+	 */
+	void readFileinFolder();
 
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
+	std::vector<DCTabelWidget *> tableVec;
 	std::vector<DCScopeModel *> scopeVector;
-	DCReader *reader;
-	DCListView *tagList;
-	DCListView *seriesListView;
-	DCDicomFileModel *fileModel;
-	DCDetailInfoItemDelegate *delegate;
 
-	// 当前列表选择的scope
-	DCScopeModel *currentModel;
+	std::string lastPath;
 
+	std::vector<DCDicomFileModel> fileModelArray;
+	std::vector<DCDicomFileModel> filteredModelArray;
+	
+
+	DCDicomFileModel selectedDicomFile;
 	void onClickConfirmBtn(int group, int element) override;
 
 	void DCAddNewScopeOnClickConfirmBtn(std::string scopeName) override;
+
+	/**
+	 * @brief set up the menu bar.
+	 * 
+	 */
+	void setupMenu();
+
+	bool isFiltered();
+
+	/**
+	 * @brief Compress dicom image.
+	 * 
+	 * @param newFilePath the place where to save the compressed file
+	 */
+	void compressImg(std::string newFilePath);
+
+	/**
+	 * @brief Decompress dicom image.
+	 *
+	 * @param newFilePath the place where to save the decompressed file
+	 */
+	void decompressImg(std::string newFilePath);
 };
 
 #endif // MAINWIDGET_H

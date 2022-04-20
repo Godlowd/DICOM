@@ -1,127 +1,60 @@
 #include "MainWidget.h"
-#include <QDebug>
-#include "DCDetailInfoModel.h"
-#include "DCListView.h"
-#include "DCDetailInfoItemDelegate.h"
-#include "DCReader.h"
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include "DCAddNewTagDialog.h"
 #include "DCAddNewScopeDialog.h"
-#include "DCDBManager.h"
 #include "RawDataReader.h"
-#define SERIES_LIST_WIDTH 150
-#define SERIES_LIST_HEIGHT 500
-#define SERIES_ORIGIN_X 16
-#define SERIES_ORIGIN_Y 0
-MainWidget::MainWidget():seriesVec()
+#include "dcmtk/dcmjpeg/djencode.h"
+#include "dcmtk/dcmjpeg/djrplol.h"
+#include "DCImageConvertManager.h"
+#include "dcmtk/dcmdata/dcrledrg.h"
+#include "dcmtk/dcmjpeg/dipijpeg.h"
+#include "dcmtk/dcmjpeg/djdecode.h"
+#include "DCImageManager.h"
+#include "CommonDefine.h"
+#include <QHeaderView>
+#include <QMenu>
+#include <QMenuBar>
+#include <QAction>
+
+#define PROGRAM_WIDTH 1920
+#define PROGRAM_HEIGHT 1080
+#define LIST_WIDTH 1500
+#define LIST_HEIGHT 280
+#define LIST_TOP_MARGIN 20
+#define LIST_BOTTOM_MARGIN 10
+
+MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedDicomFile()
 {
     setWindowTitle("DICOM");
-    this->resize(1500,800);
-	// filemodel
-	fileModel = new DCDicomFileModel();
+    this->resize(PROGRAM_WIDTH, PROGRAM_HEIGHT);
 
-	// reader
-	reader = new DCReader();
-	/*reader->readFromFile("image-00000.dcm", fileModel);*/
-	reader->readFromFile("111.dcm", fileModel);
+	setupMenu();
+	DCScopeModel *patientScope = new DCScopeModel(CommonTag::PATIENT_TAGS);
+	scopeVector.push_back(patientScope);
+	DCTabelWidget *patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), false);
+	patientTable->move(0, LIST_TOP_MARGIN);
+	patientTable->resize(LIST_WIDTH, LIST_HEIGHT);
+	tableVec.push_back(patientTable);
+	connect(patientTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
 
-	seriesListView = new DCListView(this);
-	seriesListView->move(SERIES_ORIGIN_X, SERIES_ORIGIN_Y);
-	seriesListView->resize(SERIES_LIST_WIDTH, SERIES_LIST_HEIGHT);
-	connect(seriesListView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateTagList(QModelIndex)));
+	DCScopeModel *studyScope = new DCScopeModel(CommonTag::STUDY_TAGS);
+	scopeVector.push_back(studyScope);
+	DCTabelWidget *studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), false);
+	studyTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_TOP_MARGIN + LIST_BOTTOM_MARGIN);
+	studyTable->resize(LIST_WIDTH, LIST_HEIGHT);
+	tableVec.push_back(studyTable);
+	connect(studyTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
 
-	// test data generation
-	scopeVector = DCDBManager::getInstance().loadAllScope();
-
-	currentModel = scopeVector.at(0);
-	tagList = new DCListView(this);
-	tagList->move(SERIES_ORIGIN_X + SERIES_LIST_WIDTH + 30, SERIES_ORIGIN_Y);
-	tagList->resize(700, 500);
-	connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTagAt(QModelIndex)));
-
-	connect(tagList, SIGNAL(clicked(QModelIndex)), this, SLOT(ItemClicked(QModelIndex)));
-
-	// add new series button
-	QPushButton *addNewSeriesBtn = new QPushButton("open file", this);
-	addNewSeriesBtn->move(SERIES_ORIGIN_X, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	addNewSeriesBtn->resize(100, 40);
-	addNewSeriesBtn->show();
-	QObject::connect(addNewSeriesBtn, SIGNAL(clicked()), this, SLOT(openFile()));
-
-	// add new tag button
-	QPushButton *addNewTagBtn = new QPushButton("Add Tag", this);
-	addNewTagBtn->move(SERIES_ORIGIN_X + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	addNewTagBtn->adjustSize();
-	addNewTagBtn->show();
-	QObject::connect(addNewTagBtn, SIGNAL(clicked()), this, SLOT(showAddNewTagDialog()));
-
-	// remove tag button
-	QPushButton *removeTagBtn = new QPushButton("Remove Tag", this);
-	removeTagBtn->move(SERIES_ORIGIN_X + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	removeTagBtn->adjustSize();
-	removeTagBtn->show();
-	QObject::connect(removeTagBtn, SIGNAL(clicked()), this, SLOT(removeTag()));
-
-	// remove all tables button
-	QPushButton *removeAllTableBtn = new QPushButton("DELETE TABLE", this);
-	removeAllTableBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	removeAllTableBtn->adjustSize();
-	removeAllTableBtn->show();
-	QObject::connect(removeAllTableBtn, SIGNAL(clicked()), this, SLOT(removeAllTables()));
-
-	// refresh ui button
-	QPushButton *refreshBtn = new QPushButton("REFRESH", this);
-	refreshBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200+200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	refreshBtn->adjustSize();
-	refreshBtn->show();
-	QObject::connect(refreshBtn, SIGNAL(clicked()), this, SLOT(refresh()));
-
-	// add new scope button
-	QPushButton *newScopeBtn = new QPushButton("ADD NEW SCOPE", this);
-	newScopeBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200 + 200+ 200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	newScopeBtn->adjustSize();
-	newScopeBtn->show();
-	QObject::connect(newScopeBtn, SIGNAL(clicked()), this, SLOT(addNewScope()));
-
-	// remove scope button
-	QPushButton *removeScopeBtn = new QPushButton("REMOVE SCOPE", this);
-	removeScopeBtn->move(SERIES_ORIGIN_X + 200 + 200 + 200 + 200 + 200 +200, SERIES_ORIGIN_Y + SERIES_LIST_HEIGHT + 30);
-	removeScopeBtn->adjustSize();
-	removeScopeBtn->show();
-	QObject::connect(removeScopeBtn, SIGNAL(clicked()), this, SLOT(removeScope()));
-	refresh();
-}
-
-void MainWidget::ItemClicked(QModelIndex index)
-{
-	int a;
-}
-
-void MainWidget::updateTagList(QModelIndex index) {
-	int row = index.row();
-	DCScopeModel *scope = scopeVector.at(index.row());
-	scope->loadDetailInfo(fileModel);
-	DCDetailInfoModel *model = new DCDetailInfoModel(scope->getDetailInfoArray());
-	delegate->model = model;
-	tagList->setModel(model); 
-	currentModel = scope;
-}
-
-void MainWidget::selectTagAt(QModelIndex index)
-{
-	tagList->selectedRow = index.row();
-}
-
-void MainWidget::genSeriesData(std::vector<DCScopeModel *> scopeArray) {
-	QStandardItemModel *model = new QStandardItemModel();
-	for (auto scope : scopeArray) {
-		QStandardItem *item = new QStandardItem(QString::fromStdString(scope->getName()));
-		model->appendRow(item);
-	}
-	seriesListView->setModel(model);
+	DCScopeModel *seriesScope = new DCScopeModel(CommonTag::SERIES_TAGS);
+	scopeVector.push_back(seriesScope);
+	DCTabelWidget *seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels());
+	seriesTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN + studyTable->height() + LIST_BOTTOM_MARGIN);
+	seriesTable->resize(LIST_WIDTH, LIST_HEIGHT);
+	tableVec.push_back(seriesTable);
+	connect(seriesTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
 }
 
 void MainWidget::openFile()
@@ -140,19 +73,19 @@ void MainWidget::openFile()
 	//	return;
 	//}
 
-	QString filePath = QFileDialog::getOpenFileName(
-		this,
-		tr("choose a dat file"),
-		reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/",
-		tr("DICOM(*.dat)"));
+	//QString filePath = QFileDialog::getOpenFileName(
+	//	this,
+	//	tr("choose a dat file"),
+	//	reader->getPath() != "" ? QString::fromStdString(reader->getPath()) : "C:/",
+	//	tr("DICOM(*.dcm)"));
 
-	if (!filePath.isEmpty()) {
-		RawDataReader *rawReader = new RawDataReader(160, 160, 210);
-		rawReader->readRawDataFromFile(filePath.toStdString().c_str(), "float");
-	}
-	else {
-		return;
-	}
+	//if (!filePath.isEmpty()) {
+	//	RawDataReader *rawReader = new RawDataReader(160, 160, 210);
+	//	rawReader->readRawDataFromFile(filePath.toStdString().c_str(), "float");
+	//}
+	//else {
+	//	return;
+	//}
 }
 
 void MainWidget::showAddNewTagDialog() {
@@ -160,60 +93,185 @@ void MainWidget::showAddNewTagDialog() {
 	dialog->show();
 }
 
-void MainWidget::removeTag()
-{
-	currentModel->removeTag(tagList->selectedRow);
-	refresh();
-}
+//void MainWidget::removeTag()
+//{
+//	currentModel->removeTag(tagList->selectedRow);
+//	refresh();
+//}
 
-void MainWidget::removeAllTables()
-{
-	DCDBManager::getInstance().deleteAllTables();
-}
 
-void MainWidget::refresh() {
-	if (fileModel != nullptr) {
-		scopeVector = DCDBManager::getInstance().loadAllScope();
+//void MainWidget::refresh() {
+//	if (fileModel != nullptr) {
+//		scopeVector = DCDBManager::getInstance().loadAllScope();
+//
+//		currentModel = scopeVector.at(0);
+//
+//		for (auto scope : scopeVector) {
+//			scope->loadDetailInfo(fileModel);
+//		}
+//		genSeriesData(scopeVector);
+//
+//		DCDetailInfoModel *model = new DCDetailInfoModel(currentModel->getDetailInfoArray());
+//		tagList->setModel(model);
+//		delegate = new DCDetailInfoItemDelegate(model);
+//		tagList->setItemDelegate(delegate);
+//	}
+//}
 
-		currentModel = scopeVector.at(0);
-
-		for (auto scope : scopeVector) {
-			scope->loadDetailInfo(fileModel);
-		}
-		genSeriesData(scopeVector);
-
-		DCDetailInfoModel *model = new DCDetailInfoModel(currentModel->getDetailInfoArray());
-		tagList->setModel(model);
-		delegate = new DCDetailInfoItemDelegate(model);
-		tagList->setItemDelegate(delegate);
-	}
-}
+//void MainWidget::onClickConfirmBtn(int group, int element)
+//{
+//	DcmTagKey key = DcmTagKey(group, element);
+//	currentModel->addNewTag(key);
+//	refresh();
+//	return;
+//}
 
 void MainWidget::onClickConfirmBtn(int group, int element)
 {
-	DcmTagKey key = DcmTagKey(group, element);
-	currentModel->addNewTag(key);
-	refresh();
-	return;
 }
 
 void MainWidget::DCAddNewScopeOnClickConfirmBtn(std::string scopeName)
 {
-	DCDBManager::getInstance().addNewScope(scopeName);
-	refresh();
+	//DCDBManager::getInstance().addNewScope(scopeName);
+	//refresh();
 }
 
-void MainWidget::addNewScope() {
-	DCAddNewScopeDialog *dialog = new DCAddNewScopeDialog(this, this);
-	dialog->show();
-}
-
-void MainWidget::removeScope()
+void MainWidget::compressImg(std::string newFilePath)
 {
-	if (DCDBManager::getInstance().removeScope(currentModel->getName())) {
-		refresh();
+	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
+	
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile.getFileFormat();
+	auto dataset = fileformat->getDataset();
+		DJ_RPLossless params; // codec parameters, we use the defaults
+
+		// this causes the lossless JPEG version of the dataset to be created
+		if (dataset->chooseRepresentation(EXS_JPEGProcess14SV1, &params).good() &&
+			dataset->canWriteXfer(EXS_JPEGProcess14SV1))
+		{
+			// store in lossless JPEG format
+			fileformat->saveFile(newFilePath.c_str(), EXS_JPEGProcess14SV1);
+		}
+	
+	DJEncoderRegistration::cleanup(); // deregister JPEG codecs
+}
+
+void MainWidget::decompressImg(std::string newFilePath)
+{
+	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
+
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile.getFileFormat();
+	auto dataset = fileformat->getDataset();
+	DJ_RPLossless params; // codec parameters, we use the defaults
+
+	// this causes the lossless JPEG version of the dataset to be created
+	if (dataset->chooseRepresentation(EXS_LittleEndianExplicit, &params).good() &&
+		dataset->canWriteXfer(EXS_LittleEndianExplicit))
+	{
+		// store in lossless JPEG format
+		fileformat->saveFile(newFilePath.c_str(), EXS_LittleEndianExplicit);
+	}
+
+	DJEncoderRegistration::cleanup(); // deregister JPEG codecs
+}
+
+void MainWidget::convertImgToJpeg()
+{
+	DcmRLEDecoderRegistration::registerCodecs(); // ¼Ä´æÆ÷RLE½âÑ¹±à½âÂëÆ÷
+	DJDecoderRegistration::registerCodecs(EDC_photometricInterpretation); // ×¢²áJPEG½âÑ¹Ëõ±à½âÂëÆ÷
+	DCImageConvertManager *convertManager = new DCImageConvertManager();
+	bool result = convertManager->convertToBMP("CT000000_jpg.dcm", "2.jpg");
+	if (result) {
+
 	}
 	else {
-		std::cout << "Fail to remove Scope: " << currentModel->getName() << std::endl;
+
 	}
+	DcmRLEDecoderRegistration::cleanup(); // ×¢ÏúRLE½âÑ¹Ëõ±à½âÂëÆ÷
+	DJDecoderRegistration::cleanup(); // ×¢ÏúJPEG½âÑ¹Ëõ±à½âÂëÆ÷
+}
+
+void MainWidget::saveCompressedFile() {
+	QString path = QFileDialog::getSaveFileName(this, "save", "./", "DICOM(*.dcm)");
+	if (!path.isEmpty()) {
+		this->compressImg(path.toStdString());
+	}
+}
+
+void MainWidget::saveDecompressedFile() {
+	QString path = QFileDialog::getSaveFileName(this, "save", "./", "DICOM(*.dcm)");
+	if (!path.isEmpty()) {
+		this->decompressImg(path.toStdString());
+	}
+}
+
+void MainWidget::readFileinFolder()
+{
+	QString dirStr = QFileDialog::getExistingDirectory(this);
+	if (!dirStr.isEmpty()) {
+		lastPath = dirStr.toStdString();
+		QDir dir = QDir(dirStr);
+		QStringList filter;
+		filter << "*.dcm";
+		dir.setNameFilters(filter);
+		QList<QFileInfo> fileInfo = QList<QFileInfo>(dir.entryInfoList(filter));
+
+		fileModelArray.clear();
+		foreach(QFileInfo info, fileInfo) {
+			DCDicomFileModel model = DCDicomFileModel(info.absoluteFilePath().toStdString());
+			fileModelArray.push_back(model);
+		}
+
+		updateView(fileModelArray);
+	}
+}
+void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray) {
+	if (scopeVector.size() != tableVec.size())
+		return;
+
+	for (int index = 0; index < scopeVector.size(); index++) {
+		auto scope = scopeVector.at(index);
+		auto table = tableVec.at(index);
+		scope->loadAllData(fileArray);
+		table->updateTable(scope->tagValueArray);
+	}
+
+}
+
+void MainWidget::sectionChoose(int index)
+{
+	for each (DCTabelWidget * table in tableVec)
+	{
+		table->setSelectionBehavior(QAbstractItemView::SelectRows);
+		table->setCurrentCell(index, QItemSelectionModel::Select);
+	}
+
+	if (isFiltered())
+		selectedDicomFile = filteredModelArray.at(index);
+	else 
+		selectedDicomFile = fileModelArray.at(index);
+	
+}
+
+void MainWidget::setupMenu(){
+	QMenuBar *menuBar = new QMenuBar(this);
+
+	QMenu *openMenu = new QMenu("Open", menuBar);
+	QAction *openAction = new QAction("open folder");
+	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
+	openMenu->addAction(openAction);
+
+	QMenu *imageMenu = new QMenu("Image Process", menuBar);
+	QAction *compressAction = new QAction("Compress");
+	QAction *deCompressAction = new QAction("Decompress");
+	connect(compressAction, SIGNAL(triggered()), this, SLOT(saveCompressedFile()));
+	connect(deCompressAction, SIGNAL(triggered()), this, SLOT(saveDecompressedFile()));
+	imageMenu->addAction(compressAction);
+	imageMenu->addAction(deCompressAction);
+
+	menuBar->addMenu(openMenu);
+	menuBar->addMenu(imageMenu);
+}
+
+bool MainWidget::isFiltered() {
+	return false;
 }

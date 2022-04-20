@@ -41,6 +41,9 @@
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{ffd8da26-e23a-42f4-a0ce-b9c1f3f875a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DLL">
+      <UniqueIdentifier>{9f4fcb3d-3bf8-4581-8139-99da77260915}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,20 +58,11 @@
     <ClCompile Include="DCListView.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="DCDetailInfoModel.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="DCReader.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
     <ClCompile Include="DCDicomFileModel.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="DCScopeModel.cpp">
       <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="DCDetailInfoItemDelegate.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MainWidget.cpp">
       <Filter>Source Files\UI</Filter>
@@ -85,17 +79,20 @@
     <ClCompile Include="DCAddNewScopeDialog.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="RawDataReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCImageConvertManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCImageManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCTabelWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DCDetailInfoModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DCDetailInfoItemDelegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DCReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCDicomFileModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -103,9 +100,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DCScopeModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DCDetailInfoStruct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
@@ -123,6 +117,18 @@
     <ClInclude Include="DCAddNewScopeProtocol.h">
       <Filter>Header Files\Interface</Filter>
     </ClInclude>
+    <ClInclude Include="RawDataReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCImageConvertManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCImageManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCTabelWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MainWidget.h">
@@ -138,9 +144,36 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="111.dcm" />
-    <None Include="dcmdata.dll" />
     <None Include="image-00000.dcm" />
-    <None Include="oflog.dll" />
-    <None Include="ofstd.dll" />
+    <None Include="dcmdata.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="dcmimage.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="dcmjpeg.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="i2d.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="ijg8.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="ijg12.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="ijg16.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="oflog.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="ofstd.dll">
+      <Filter>DLL</Filter>
+    </None>
+    <None Include="dcmimgle.dll">
+      <Filter>DLL</Filter>
+    </None>
   </ItemGroup>
 </Project>

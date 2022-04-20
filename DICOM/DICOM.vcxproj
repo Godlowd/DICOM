@@ -62,7 +62,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>Iphlpapi.lib;ws2_32.lib;wsock32.lib;netapi32.lib;ofstd.lib;oflog.lib;dcmdata.lib;zlib_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dcmtkcharls.lib;
+cmr.lib
+;dcmdata.lib;
+dcmdsig.lib;
+dcmfg.lib;
+dcmimage.lib;dcmimgle.lib;
+dcmjpeg.lib;i2d.lib;
+ijg12.lib
+;ijg16.lib;
+ijg8.lib;
+oflog.lib;
+ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -95,15 +106,23 @@
     <ClCompile Include="DCAddNewScopeDialog.cpp" />
     <ClCompile Include="DCAddNewTagDialog.cpp" />
     <ClCompile Include="DCDBManager.cpp" />
-    <ClCompile Include="DCDetailInfoItemDelegate.cpp" />
-    <ClCompile Include="DCDetailInfoModel.cpp" />
     <ClCompile Include="DCDicomFileModel.cpp" />
+    <ClCompile Include="DCImageConvertManager.cpp" />
+    <ClCompile Include="DCImageManager.cpp" />
     <ClCompile Include="DCListView.cpp" />
-    <ClCompile Include="DCReader.cpp" />
+    <ClCompile Include="DCTabelWidget.cpp" />
     <ClCompile Include="DCScopeModel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWidget.cpp" />
+    <ClCompile Include="RawDataReader.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <None Include="dcmimage.dll" />
+    <None Include="dcmimgle.dll" />
+    <None Include="dcmjpeg.dll" />
+    <None Include="i2d.dll" />
+    <None Include="ijg12.dll" />
+    <None Include="ijg16.dll" />
+    <None Include="ijg8.dll" />
     <None Include="oflog.dll" />
     <None Include="ofstd.dll" />
     <QtRcc Include="qml.qrc" />
@@ -120,13 +139,13 @@
     <ClInclude Include="DCAddNewScopeProtocol.h" />
     <ClInclude Include="DCAddNewTagProtocal.h" />
     <ClInclude Include="DCDBManager.h" />
-    <ClInclude Include="DCDetailInfoItemDelegate.h" />
-    <ClInclude Include="DCDetailInfoModel.h" />
-    <ClInclude Include="DCDetailInfoStruct.h" />
     <ClInclude Include="DCDicomFileModel.h" />
+    <ClInclude Include="DCImageConvertManager.h" />
+    <ClInclude Include="DCImageManager.h" />
     <ClInclude Include="DCListView.h" />
-    <ClInclude Include="DCReader.h" />
+    <ClInclude Include="DCTabelWidget.h" />
     <ClInclude Include="DCScopeModel.h" />
+    <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="MainWidget.h" />
   </ItemGroup>

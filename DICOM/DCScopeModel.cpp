@@ -1,6 +1,6 @@
 #include "DCScopeModel.h"
 
-DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name):tagArray(tagArray), displayName(name)
+DCScopeModel::DCScopeModel(std::vector<DcmTagKey> tagArray, std::string name):tagInfoArray(tagArray), displayName(name)
 {
 }
 
@@ -8,35 +8,23 @@ DCScopeModel::DCScopeModel(std::string name):displayName(name)
 {
 }
 
-void DCScopeModel::addNewTag(DcmTagKey key)
+DCScopeModel::DCScopeModel(const DCScopeModel & model)
 {
-	tagArray.push_back(key);
-	dbManager->addNewTag(this->getName(), key);
+	tagInfoArray = model.tagInfoArray;
+	tagValueArray = model.tagValueArray;
+	displayName = model.displayName;
+	dbManager = model.dbManager;
 }
 
-void DCScopeModel::removeTag(DcmTagKey key)
+std::vector<std::string> DCScopeModel::getTableHeaderLabels()
 {
-	for (int index = 0; index < tagArray.size(); index++) {
-		DcmTagKey temp = tagArray.at(index);
-		if (temp.getElement() == key.getElement() && temp.getGroup() == key.getGroup()) {
-			tagArray.erase(tagArray.begin() + index);
-			if (dbManager->removeTag(this, key)) {
-
-			}
-			else {
-
-			}
-		}
+	std::vector<std::string> result;
+	for each (DcmTagKey tagKey in tagInfoArray)
+	{
+		DcmTag tag = DcmTag(tagKey);
+		result.push_back(tag.getTagName());
 	}
-}
-
-void DCScopeModel::removeTag(int pos) {
-	if (pos >= tagArray.size()) {
-		return;
-	}
-
-	DcmTagKey key = tagArray.at(pos);
-	this->removeTag(key);
+	return result;
 }
 
 std::string DCScopeModel::getName() const
@@ -49,39 +37,33 @@ void DCScopeModel::setName(std::string name)
 	displayName = name;
 }
 
-void DCScopeModel::loadDetailInfo(DCDicomFileModel *fileModel)
-{
-	detailInfoArray.clear();
-	for (auto tagKey : tagArray) {
-		DcmElement *element = fileModel->getValueForTag(tagKey);
-
-		DCDetailInfo info;
-		if (element == nullptr) {
-			info = DCDetailInfo();
-			info.groupId = tagKey.getGroup();
-			info.tagId = tagKey.getElement();
-			info.value = "null";
-			info.valueType = "null";
-		}
-		else {
-			info = dcmElement2DetailInfo(element);
-		}
-		detailInfoArray.push_back(info);
-	}
-}
-
-const std::vector<DCDetailInfo> DCScopeModel::getDetailInfoArray()
-{
-	return detailInfoArray;
-}
 
 int DCScopeModel::rowCount(const QModelIndex & parent) const
 {
-	return tagArray.size();
+	return min(tagValueArray.size(), 8)+ 1;
 }
 
 QVariant DCScopeModel::data(const QModelIndex & index, int role) const
 {
 	return QVariant();
+}
+
+const std::vector<DcmTagKey> DCScopeModel::getTagInfoArray()
+{
+	return tagInfoArray;
+}
+
+void DCScopeModel::loadAllData(std::vector<DCDicomFileModel> fileArray)
+{
+	tagValueArray.clear();
+	for (auto file : fileArray) {
+		std::vector<std::string> result = this->getValueFrom(file, tagInfoArray);
+		tagValueArray.push_back(result);
+	}
+}
+
+std::vector<std::string> DCScopeModel::getValueFrom(DCDicomFileModel file, std::vector<DcmTagKey> tagInfos)
+{
+	return file.getValueForTags(tagInfos);
 }
 
