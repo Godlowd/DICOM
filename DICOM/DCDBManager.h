@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <QSqlDataBase>
 #include <QSqlQuery>
@@ -10,36 +10,36 @@ class DCScopeModel;
 class DCDBManager
 {
 public:
-	// @brief »ñÈ¡µ¥Àı
+	// @brief è·å–å•ä¾‹
 	static DCDBManager & getInstance();
 
-	// @brief Ìí¼ÓĞÂµÄscopeµ½Ä©Î²
-	// @param name ÒªÌí¼ÓµÄscopeµÄÃû×Ö
+	// @brief æ·»åŠ æ–°çš„scopeåˆ°æœ«å°¾
+	// @param name è¦æ·»åŠ çš„scopeçš„åå­—
 	bool addNewScope(std::string name);
 
-	// @brief ÒÆ³ıÖ¸¶¨Î»ÖÃµÄscope
-	// @param name ÒªÒÆ³ıµÄscopeµÄÃû×Ö
+	// @brief ç§»é™¤æŒ‡å®šä½ç½®çš„scope
+	// @param name è¦ç§»é™¤çš„scopeçš„åå­—
 	bool removeScope(std::string name);
 
-	// @brief Ìí¼ÓĞÂµÄkeyµ½scopeµÄÄ©Î²
-	// @param scopeName ÒªÌí¼ÓµÄÄ¿±êscopeµÄÃû×Ö
-	// @param tagKey ÒªÌí¼ÓµÄkey
-	bool addNewTag(std::string scopeName, const DcmTagKey tagKey);
+	// @brief æ·»åŠ æ–°çš„keyåˆ°scopeçš„æœ«å°¾
+	// @param scopeName è¦æ·»åŠ çš„ç›®æ ‡scopeçš„åå­—
+	// @param tagKey è¦æ·»åŠ çš„key
+	/*bool addNewTag, , (std::string scopeName, const DcmTagKey tagKey);*/
 
-	// @brief ÒÆ³ıÖ¸¶¨Î»ÖÃµÄkey
-	// @param scope ÒªÒÆ³ıµÄscope
-	// @param tagKey ÒªÒÆ³ıµÄtagKey
-	// @return É¾³ı²Ù×÷ÊÇ·ñ³É¹¦
+	// @brief ç§»é™¤æŒ‡å®šä½ç½®çš„key
+	// @param scope è¦ç§»é™¤çš„scope
+	// @param tagKey è¦ç§»é™¤çš„tagKey
+	// @return åˆ é™¤æ“ä½œæ˜¯å¦æˆåŠŸ
 	bool removeTag(DCScopeModel *scope, DcmTagKey &tagKey);
 
-	// @brief Ò»¼üÉ¾³ıÊı¾İ¿âÖĞËùÓĞ±í
+	// @brief ä¸€é”®åˆ é™¤æ•°æ®åº“ä¸­æ‰€æœ‰è¡¨
 	void deleteAllTables();
 
-	// @brief ´ÓÊı¾İ¿âÖĞ¼ÓÔØ´«ÈëµÄscopeName¶ÔÓ¦µÄtagkey
-	// @param scopeName Òª¼ÓÔØµÄscopeName
-	std::vector<DcmTagKey> loadScopeTag(std::string scopeName);
+	// @brief ä»æ•°æ®åº“ä¸­åŠ è½½ä¼ å…¥çš„scopeNameå¯¹åº”çš„tagkey
+	// @param scopeName è¦åŠ è½½çš„scopeName
+	/*std::vector<DcmTagKey> loadScopeTag(std::string scopeName);*/
 
-	// @brief ´ÓÊı¾İ¿â¼ÓÔØËùÓĞscope
+	// @brief ä»æ•°æ®åº“åŠ è½½æ‰€æœ‰scope
 	std::vector<DCScopeModel *> loadAllScope();
 private:
 	DCDBManager::DCDBManager();
@@ -50,7 +50,7 @@ private:
 
 	static bool loadTestData();
 
-	// @brief ·µ»ØÄ³¸ö²éÑ¯½á¹ûµÄ´óĞ¡, sqlite3Ã»ÓĞsize()º¯Êı
+	// @brief è¿”å›æŸä¸ªæŸ¥è¯¢ç»“æœçš„å¤§å°, sqlite3æ²¡æœ‰size()å‡½æ•°
 	int resultSize(QSqlQuery query);
 };
 

@@ -1,4 +1,4 @@
-#ifndef MAINWIDGET_H
+﻿#ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
 #include "dcmtk/config/osconfig.h"
@@ -19,18 +19,28 @@
 #include "DCAddNewTagProtocal.h"
 #include "DCAddNewScopeProtocol.h"
 #include "DCTabelWidget.h"
-class MainWidget : public QWidget, public DCAddNewTagProtocol, public DCAddNewScopeProtocol
+#include "FilterWidget.h"
+
+class MainWidget : public QWidget
 {
     Q_OBJECT
 public:
     MainWidget();
+	FilterWidget* m_filterWidget;
+	QMap<int, QStringList> m_map;
+
+	DCTabelWidget *selectedTable;
+
+// DCFilterWidgetProtocol
+public:
+	void updateFilterCondition(set<string> filters);
+
+protected:
+	void mousePressEvent(QMouseEvent *event);
 public slots:
 
-	// @brief ���ļ�
+	// @brief 打开文件
 	void openFile();
-
-	// @brief �����µ�tag
-	void showAddNewTagDialog();
 
 	void convertImgToJpeg();
 
@@ -53,6 +63,8 @@ public slots:
 	 */
 	void updateView(std::vector<DCDicomFileModel> fileArray);
 
+	void filterTable();
+
 	/**
 	 * @brief when user select a row in one of the three tables, select those rows which index are the same.
 	 * 
@@ -66,6 +78,17 @@ public slots:
 	 */
 	void readFileinFolder();
 
+	void onPatientHeaderClicked(int row);
+	void onStudyHeaderClicked(int row);
+	void onSeriesHeaderClicked(int row);
+
+	void onHorizontalClicked(int col, DCTabelWidget * table);
+
+
+	void (int col, QStringList showList);
+
+	void closeFilterWidget();
+
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCTabelWidget *> tableVec;
@@ -76,12 +99,16 @@ private:
 	std::vector<DCDicomFileModel> fileModelArray;
 	std::vector<DCDicomFileModel> filteredModelArray;
 	
+	DCTabelWidget *patientTable;
+	DCTabelWidget *studyTable;
+	DCTabelWidget *seriesTable;
 
 	DCDicomFileModel selectedDicomFile;
-	void onClickConfirmBtn(int group, int element) override;
 
-	void DCAddNewScopeOnClickConfirmBtn(std::string scopeName) override;
-
+	/**
+	 * 三个表各自的筛选条件的集合，每一列的筛选条件对应map中的一个键值对.
+	 */
+	std::vector<std::map<int, std::set<std::string>>> filterVec;
 	/**
 	 * @brief set up the menu bar.
 	 * 

@@ -1,11 +1,10 @@
-#include "MainWidget.h"
+ï»¿#include "MainWidget.h"
 #include "DCDicomFileModel.h"
 #include "DCScopeModel.h"
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include "DCAddNewTagDialog.h"
 #include "DCAddNewScopeDialog.h"
-#include "RawDataReader.h"
 #include "dcmtk/dcmjpeg/djencode.h"
 #include "dcmtk/dcmjpeg/djrplol.h"
 #include "DCImageConvertManager.h"
@@ -18,43 +17,52 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
+#include "FilterWidget.h"
+#include <QMouseEvent>
+#include <set>
+#include <QStringList>
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
 #define LIST_WIDTH 1500
 #define LIST_HEIGHT 280
-#define LIST_TOP_MARGIN 20
+#define LIST_TOP_MARGIN 30
 #define LIST_BOTTOM_MARGIN 10
 
 MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedDicomFile()
 {
     setWindowTitle("DICOM");
     this->resize(PROGRAM_WIDTH, PROGRAM_HEIGHT);
+	m_filterWidget = nullptr;
 
 	setupMenu();
+
 	DCScopeModel *patientScope = new DCScopeModel(CommonTag::PATIENT_TAGS);
 	scopeVector.push_back(patientScope);
-	DCTabelWidget *patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), false);
+	patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), false);
 	patientTable->move(0, LIST_TOP_MARGIN);
 	patientTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(patientTable);
 	connect(patientTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
+	connect(patientTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onPatientHeaderClicked(int)));
 
 	DCScopeModel *studyScope = new DCScopeModel(CommonTag::STUDY_TAGS);
 	scopeVector.push_back(studyScope);
-	DCTabelWidget *studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), false);
-	studyTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_TOP_MARGIN + LIST_BOTTOM_MARGIN);
+	studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), false);
+	studyTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN );
 	studyTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(studyTable);
 	connect(studyTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
+	connect(studyTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onStudyHeaderClicked(int)));
 
 	DCScopeModel *seriesScope = new DCScopeModel(CommonTag::SERIES_TAGS);
 	scopeVector.push_back(seriesScope);
-	DCTabelWidget *seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels());
-	seriesTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN + studyTable->height() + LIST_BOTTOM_MARGIN);
+	seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels());
+	seriesTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN + studyTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN);
 	seriesTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(seriesTable);
 	connect(seriesTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
+	connect(seriesTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onSeriesHeaderClicked(int)));
 }
 
 void MainWidget::openFile()
@@ -86,11 +94,6 @@ void MainWidget::openFile()
 	//else {
 	//	return;
 	//}
-}
-
-void MainWidget::showAddNewTagDialog() {
-	DCAddNewTagDialog *dialog = new DCAddNewTagDialog(this, this);
-	dialog->show();
 }
 
 //void MainWidget::removeTag()
@@ -125,16 +128,6 @@ void MainWidget::showAddNewTagDialog() {
 //	refresh();
 //	return;
 //}
-
-void MainWidget::onClickConfirmBtn(int group, int element)
-{
-}
-
-void MainWidget::DCAddNewScopeOnClickConfirmBtn(std::string scopeName)
-{
-	//DCDBManager::getInstance().addNewScope(scopeName);
-	//refresh();
-}
 
 void MainWidget::compressImg(std::string newFilePath)
 {
@@ -176,8 +169,8 @@ void MainWidget::decompressImg(std::string newFilePath)
 
 void MainWidget::convertImgToJpeg()
 {
-	DcmRLEDecoderRegistration::registerCodecs(); // ¼Ä´æÆ÷RLE½âÑ¹±à½âÂëÆ÷
-	DJDecoderRegistration::registerCodecs(EDC_photometricInterpretation); // ×¢²áJPEG½âÑ¹Ëõ±à½âÂëÆ÷
+	DcmRLEDecoderRegistration::registerCodecs(); // å¯„å­˜å™¨RLEè§£å‹ç¼–è§£ç å™¨
+	DJDecoderRegistration::registerCodecs(EDC_photometricInterpretation); // æ³¨å†ŒJPEGè§£å‹ç¼©ç¼–è§£ç å™¨
 	DCImageConvertManager *convertManager = new DCImageConvertManager();
 	bool result = convertManager->convertToBMP("CT000000_jpg.dcm", "2.jpg");
 	if (result) {
@@ -186,8 +179,8 @@ void MainWidget::convertImgToJpeg()
 	else {
 
 	}
-	DcmRLEDecoderRegistration::cleanup(); // ×¢ÏúRLE½âÑ¹Ëõ±à½âÂëÆ÷
-	DJDecoderRegistration::cleanup(); // ×¢ÏúJPEG½âÑ¹Ëõ±à½âÂëÆ÷
+	DcmRLEDecoderRegistration::cleanup(); // æ³¨é”€RLEè§£å‹ç¼©ç¼–è§£ç å™¨
+	DJDecoderRegistration::cleanup(); // æ³¨é”€JPEGè§£å‹ç¼©ç¼–è§£ç å™¨
 }
 
 void MainWidget::saveCompressedFile() {
@@ -237,6 +230,28 @@ void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray) {
 
 }
 
+void MainWidget::filterTable() {
+	if (tableVec.size() != filterVec.size())
+		return;
+
+	std::set<int> rowSet;
+	for (int index = 0; index < tableVec.size(); index++) {
+		auto table = tableVec.at(index);
+		auto  = filterVec.at(index);
+
+		std::vector<int> correctRows = table->filter();
+		std::copy(correctRows.begin(), correctRows.end(), std::inserter(rowSet, rowSet.end()));
+	}
+
+	std::vector<DCDicomFileModel> copyFileArray(fileModelArray);
+	std::set<int>::iterator iter;
+	for (iter = rowSet.begin(); iter != rowSet.end(); iter++) {
+		int pos = *iter;
+		copyFileArray.erase(copyFileArray.begin() + pos);
+	}
+	updateView(copyFileArray);
+}
+
 void MainWidget::sectionChoose(int index)
 {
 	for each (DCTabelWidget * table in tableVec)
@@ -250,6 +265,102 @@ void MainWidget::sectionChoose(int index)
 	else 
 		selectedDicomFile = fileModelArray.at(index);
 	
+}
+
+void MainWidget::onPatientHeaderClicked(int row) {
+	selectedTable = patientTable;
+	onHorizontalClicked(row, patientTable);
+}
+
+void MainWidget::onStudyHeaderClicked(int row)
+{
+	selectedTable = studyTable;
+	onHorizontalClicked(row, studyTable);
+}
+
+void MainWidget::onSeriesHeaderClicked(int row)
+{
+	selectedTable = seriesTable;
+	onHorizontalClicked(row, seriesTable);
+}
+
+void MainWidget::onHorizontalClicked(int col, DCTabelWidget * table)
+{
+	//æ‰€æœ‰item
+	set<string> items;
+	vector<string> dataMap = table->getDataMapAtCol(col);
+	std::copy(dataMap.begin(), dataMap.end(), std::inserter(items, items.end()));
+	//æ˜¾ç¤ºçš„item
+	set<string> showItems(table->getShowItemsSetAtCol(col));
+	//è½¬ä¸ºQStringList
+	QStringList strItems;
+	QStringList strShowItems;
+	for each (string var in items)
+	{
+		strItems.append(var.c_str());
+	}
+
+	for each (string var in showItems)
+	{
+		strShowItems.append(var.c_str());
+	}
+	//å…³é—­ç­›é€‰æ¡†
+	closeFilterWidget();
+	//æ–°å»ºç­›é€‰æ¡†
+	m_filterWidget = new FilterWidget(strItems, strShowItems, col, selectedTable);
+	m_filterWidget->delegate = table;
+
+	m_filterWidget->exec(table->mapFromGlobal(cursor().pos()));
+}
+
+void MainWidget::updateFilterCondition(set<string> filters)
+{
+
+}
+
+void MainWidget::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::RightButton)
+	{
+		if (m_filterWidget != nullptr)
+			closeFilterWidget();
+	}
+
+}
+
+//ç­›é€‰
+void MainWidget::(int col, QStringList showList)
+{
+	m_map[col] = showList;
+	for (int i = 0; i < selectedTable->rowCount(); i++)
+	{
+		bool hidden = false;
+
+		//éå†map
+		for each (int  v_col in m_map.keys())
+		{
+			QString strItem = selectedTable->item(i, v_col)->text();
+			if (!m_map.value(v_col).contains(strItem))
+			{
+				hidden = true;
+				break;
+			}
+		}
+
+		selectedTable->setRowHidden(i, hidden);
+	}
+}
+
+
+//å…³é—­ç­›é€‰æ¡†
+void MainWidget::closeFilterWidget()
+{
+	//æ¸…ç©ºç­›é€‰æ¡†
+	if (m_filterWidget != nullptr)
+	{
+		delete m_filterWidget;
+		m_filterWidget = nullptr;
+	}
 }
 
 void MainWidget::setupMenu(){
