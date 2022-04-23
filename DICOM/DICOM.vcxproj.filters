@@ -79,9 +79,6 @@
     <ClCompile Include="DCAddNewScopeDialog.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="RawDataReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DCImageConvertManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -89,6 +86,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DCTabelWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,9 +117,6 @@
     <ClInclude Include="DCAddNewScopeProtocol.h">
       <Filter>Header Files\Interface</Filter>
     </ClInclude>
-    <ClInclude Include="RawDataReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCImageConvertManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,6 +125,12 @@
     </ClInclude>
     <ClInclude Include="DCTabelWidget.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCFilterWidgetProtocol.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

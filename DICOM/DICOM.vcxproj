@@ -112,9 +112,9 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClCompile Include="DCListView.cpp" />
     <ClCompile Include="DCTabelWidget.cpp" />
     <ClCompile Include="DCScopeModel.cpp" />
+    <ClCompile Include="FilterWidget.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWidget.cpp" />
-    <ClCompile Include="RawDataReader.cpp" />
     <ClCompile Include="Utils.cpp" />
     <None Include="dcmimage.dll" />
     <None Include="dcmimgle.dll" />
@@ -140,12 +140,13 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClInclude Include="DCAddNewTagProtocal.h" />
     <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDicomFileModel.h" />
+    <ClInclude Include="DCFilterWidgetProtocol.h" />
     <ClInclude Include="DCImageConvertManager.h" />
     <ClInclude Include="DCImageManager.h" />
     <ClInclude Include="DCListView.h" />
     <ClInclude Include="DCTabelWidget.h" />
     <ClInclude Include="DCScopeModel.h" />
-    <ClInclude Include="RawDataReader.h" />
+    <ClInclude Include="FilterWidget.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="MainWidget.h" />
   </ItemGroup>
