@@ -1,5 +1,7 @@
-#include "DCTabelWidget.h"
+﻿#include "DCTabelWidget.h"
 #include "qheaderview.h"
+#include <algorithm>
+
 DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, bool adjustContent) :
 	QTableWidget(parent)
 {
@@ -21,8 +23,11 @@ DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, bool ad
 void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
 {
 	this->setRowCount(valueArray.size());
-	vector<vector<string>> tempDataMap(valueArray.size());
-	dataMap = tempDataMap;
+	if (!isFiltering) {
+		vector<vector<string>> tempDataMap(valueArray.size());
+		dataMap = tempDataMap;
+	}
+
 	for (int index = 0; index < valueArray.size(); index++) {
 		setDataForRow(index, valueArray.at(index));
 	}
@@ -36,20 +41,21 @@ void DCTabelWidget::setDataForRow(int row, vector<string> value)
 		QTableWidgetItem *item = new QTableWidgetItem(str.c_str());
 		item->setTextAlignment(Qt::AlignCenter);
 		this->setItem(row, index, item);
-		dataMap.at(row) = value;
+		if (!isFiltering)
+			dataMap.at(row) = value;
 	}
 }
 
 vector<int> DCTabelWidget::filter()
 {
-	auto rowCount = this->rowCount();
+	auto rowCount = dataMap.size();
 	map<int, string>::iterator iter;
 	vector<int> result;
 
-
+	// 最外层按样本遍历
 	for (int row = 0; row < rowCount; row++) {
 		bool flag = true;
-		// according to each filter condition, filter a single row
+		// 内层判断样本的各个属性条件是否满足要求
 		for (auto iter = this->filters.begin(); iter != this->filters.end(); iter++) {
 			auto col = iter->first;
 			if (col > this->columnCount())
@@ -57,12 +63,19 @@ vector<int> DCTabelWidget::filter()
 
 			auto filterCondition = iter->second;
 
-			auto item = this->item(row, col);
-			auto value = item->text().toStdString();
+			auto value = dataMap.at(row).at(col);
 
-			if (!filterCondition.count(value)) {
-				flag = false;
+			bool currentRowFlag = false;
+			for each (string str in filterCondition)
+			{
+				if (str.size() == value.size() && str == value) {
+					currentRowFlag = currentRowFlag | true;
+					break;
+				}
+				else
+					currentRowFlag = currentRowFlag | false;
 			}
+			flag = flag & currentRowFlag;
 		}
 
 		if (flag)
@@ -108,7 +121,10 @@ const set<string> DCTabelWidget::getShowItemsSetAtCol(const int col)
 	return result;
 }
 
-void DCTabelWidget::updateFilterCondition(map<int, set<string>> filters)
+void DCTabelWidget::updateFilterCondition(int col, vector<string> filters)
 {
-	this->filters = filters;
+	if (this->filters.find(col) == this->filters.end())
+		this->filters.insert(make_pair(col, filters));
+	else
+		this->filters.at(col) = filters;
 }

@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QEventLoop>
 
+
 //Items：所有项
 //showItems：显示的项
 //col：列号
@@ -24,11 +25,15 @@ FilterWidget::FilterWidget(QStringList Items, QStringList showItems, int col, QW
 	{
 		QCheckBox* checkBox = new QCheckBox(this);
 		checkBox->setText(var);
+		vector<string>::iterator it = std::find(m_showList.begin(), m_showList.end(), var.toStdString());
+		bool first = it != m_showList.end();
+		bool second = showItems.contains(var);
 		if (showItems.contains(var))
 		{
-			m_showList.insert(var.toStdString());
+			m_showList.push_back(var.toStdString());
 			checkBox->setChecked(true);
 		}
+
 		connect(checkBox, &QCheckBox::stateChanged, this, &FilterWidget::slot_stateChanged);
 		QListWidgetItem *item = new QListWidgetItem();
 		m_ListWidget->addItem(item);
@@ -42,7 +47,7 @@ FilterWidget::~FilterWidget()
 {
 }
 
-set<string> FilterWidget::getShowList()
+vector<string> FilterWidget::getShowList()
 {
 	return m_showList;
 }
@@ -74,9 +79,9 @@ void FilterWidget::slot_stateChanged()
 		QCheckBox *checkBox = static_cast<QCheckBox *>(m_ListWidget->itemWidget(item));
 
 		if (checkBox->isChecked())
-			m_showList.insert(checkBox->text().toStdString());
+			m_showList.push_back(checkBox->text().toStdString());
 	}
 
 	if (delegate != nullptr)
-		delegate->updateFilterCondition(m_showList);
+		delegate->updateFilterCondition(m_col, m_showList);
 }

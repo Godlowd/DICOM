@@ -35,7 +35,9 @@ public:
 	const vector<string> getShowItemsAtCol(const int col);
 	const set<string> getShowItemsSetAtCol(const int col);
 
-	void updateFilterCondition(map<int, set<string>> filters);
+	void updateFilterCondition(int col, vector<string> filters);
+
+	bool isFiltering;
 private:
 
 	/**
@@ -48,6 +50,8 @@ private:
 	 * @key the col which has a set of filters.
 	 * @value	filter
 	 */
-	map<int, set<string>> filters;
+	map<int, vector<string>> filters;
+
+	
 };
 

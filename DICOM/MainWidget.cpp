@@ -217,13 +217,15 @@ void MainWidget::readFileinFolder()
 		updateView(fileModelArray);
 	}
 }
-void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray) {
+
+void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray, bool isFiltering) {
 	if (scopeVector.size() != tableVec.size())
 		return;
 
 	for (int index = 0; index < scopeVector.size(); index++) {
 		auto scope = scopeVector.at(index);
 		auto table = tableVec.at(index);
+		table->isFiltering = isFiltering;
 		scope->loadAllData(fileArray);
 		table->updateTable(scope->tagValueArray);
 	}
@@ -231,25 +233,29 @@ void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray) {
 }
 
 void MainWidget::filterTable() {
-	if (tableVec.size() != filterVec.size())
-		return;
-
 	std::set<int> rowSet;
 	for (int index = 0; index < tableVec.size(); index++) {
 		auto table = tableVec.at(index);
-		auto  = filterVec.at(index);
 
 		std::vector<int> correctRows = table->filter();
-		std::copy(correctRows.begin(), correctRows.end(), std::inserter(rowSet, rowSet.end()));
+		if (index == 0)
+			std::copy(correctRows.begin(), correctRows.end(), std::inserter(rowSet, rowSet.end()));
+		else {
+			set<int> tempSet;
+			std::copy(correctRows.begin(), correctRows.end(), std::inserter(tempSet, tempSet.end()));
+			set<int> tempInterSet;
+			set_intersection(rowSet.begin(), rowSet.end(), tempSet.begin(), tempSet.end(), inserter(tempInterSet, tempInterSet.begin()));
+			rowSet = tempInterSet;
+		}
 	}
 
-	std::vector<DCDicomFileModel> copyFileArray(fileModelArray);
+	std::vector<DCDicomFileModel> copyFileArray;
 	std::set<int>::iterator iter;
-	for (iter = rowSet.begin(); iter != rowSet.end(); iter++) {
-		int pos = *iter;
-		copyFileArray.erase(copyFileArray.begin() + pos);
+	for (int index = 0; index < fileModelArray.size(); index++) {
+		if (rowSet.count(index))
+			copyFileArray.push_back(fileModelArray.at(index));
 	}
-	updateView(copyFileArray);
+	updateView(copyFileArray, true);
 }
 
 void MainWidget::sectionChoose(int index)
@@ -307,10 +313,12 @@ void MainWidget::onHorizontalClicked(int col, DCTabelWidget * table)
 	//关闭筛选框
 	closeFilterWidget();
 	//新建筛选框
-	m_filterWidget = new FilterWidget(strItems, strShowItems, col, selectedTable);
+	m_filterWidget = new FilterWidget(strItems, strShowItems, col, table);
 	m_filterWidget->delegate = table;
 
-	m_filterWidget->exec(table->mapFromGlobal(cursor().pos()));
+	QPoint pos(cursor().pos());
+	pos.setX(pos.x() + 10);
+	m_filterWidget->exec(table->mapFromGlobal(pos));
 }
 
 void MainWidget::updateFilterCondition(set<string> filters)
@@ -329,7 +337,7 @@ void MainWidget::mousePressEvent(QMouseEvent *event)
 }
 
 //筛选
-void MainWidget::(int col, QStringList showList)
+void MainWidget::filter(int col, QStringList showList)
 {
 	m_map[col] = showList;
 	for (int i = 0; i < selectedTable->rowCount(); i++)
@@ -370,6 +378,9 @@ void MainWidget::setupMenu(){
 	QAction *openAction = new QAction("open folder");
 	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
 	openMenu->addAction(openAction);
+	QAction *filterAction = new QAction("Filter");
+	connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTable()));
+	openMenu->addAction(filterAction);
 
 	QMenu *imageMenu = new QMenu("Image Process", menuBar);
 	QAction *compressAction = new QAction("Compress");

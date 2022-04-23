@@ -61,7 +61,7 @@ public slots:
 	 * 
 	 * @param fileArray
 	 */
-	void updateView(std::vector<DCDicomFileModel> fileArray);
+	void updateView(std::vector<DCDicomFileModel> fileArray, bool isFiltering = false);
 
 	void filterTable();
 
@@ -85,7 +85,7 @@ public slots:
 	void onHorizontalClicked(int col, DCTabelWidget * table);
 
 
-	void (int col, QStringList showList);
+	void filter(int col, QStringList showList);
 
 	void closeFilterWidget();
 

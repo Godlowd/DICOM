@@ -6,6 +6,11 @@
 #include <QCheckBox>
 #include <QSet>
 #include "DCFilterWidgetProtocol.h"
+#include <algorithm>
+#include <string>
+#include <vector>
+using namespace std;
+
 enum FilterTable
 {
 	PatientTable,
@@ -22,7 +27,7 @@ public:
 
 
 	//获取要显示的列表
-	set<string> getShowList();
+	vector<string> getShowList();
 
 	//获取列号
 	int getColumn();
@@ -42,7 +47,7 @@ private:
 	QListWidget* m_ListWidget = nullptr;
 
 	//要显示的项
-	set<string> m_showList;
+	vector<string> m_showList;
 
 	//列号
 	int m_col;

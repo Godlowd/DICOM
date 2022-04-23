@@ -6,9 +6,10 @@ using namespace std;
 class DCFilterWidgetProtocol {
 public:
 	/**
-	 * @brief 当筛选框的某一个checkbox状态改变时，调用这个方法。传递最新的筛选条件给MainWidget.
+	 * @brief 当checkbox选择的选项更新时，通知table更新筛选条件.
 	 * 
-	 * @param filters 最新的筛选条件
+	 * @param col 筛选条件更新的列
+	 * @param filters 更新后的筛选条件
 	 */
-	 virtual void updateFilterCondition(map<int, set<string>> filters) = 0;
+	 virtual void updateFilterCondition(int col, vector<string> filters) = 0;
 };
