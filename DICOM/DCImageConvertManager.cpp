@@ -8,11 +8,16 @@ bool DCImageConvertManager::convertToBMP(string sourceFileName, string dstFileNa
 	DcmFileFormat fileformat;
 	OFCondition status = fileformat.loadFile(sourceFileName.c_str());
 	if (status.good()) {
+		double winWidth, winCenter;
+		fileformat.getDataset()->findAndGetFloat64(DCM_WindowWidth, winWidth);
+		fileformat.getDataset()->findAndGetFloat64(DCM_WindowCenter, winCenter);
+
 		DicomImage *dicomImg = new DicomImage(sourceFileName.c_str());
+		dicomImg->setWindow(winCenter, winWidth);
 		DiJPEGPlugin plugin;
 		plugin.setQuality(quality);
 		plugin.setSampling(ESS_444);
-		bool status = dicomImg->writePluginFormat(&plugin, "test111.jpeg");
+		bool status = dicomImg->writePluginFormat(&plugin, dstFileName.c_str());
 		return status;
 	}
 	else {

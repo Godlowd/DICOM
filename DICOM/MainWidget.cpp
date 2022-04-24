@@ -167,12 +167,12 @@ void MainWidget::decompressImg(std::string newFilePath)
 	DJEncoderRegistration::cleanup(); // deregister JPEG codecs
 }
 
-void MainWidget::convertImgToJpeg()
+void MainWidget::convertImgToJpeg(std::string originFilePath, std::string newFilePath)
 {
 	DcmRLEDecoderRegistration::registerCodecs(); // 寄存器RLE解压编解码器
 	DJDecoderRegistration::registerCodecs(EDC_photometricInterpretation); // 注册JPEG解压缩编解码器
 	DCImageConvertManager *convertManager = new DCImageConvertManager();
-	bool result = convertManager->convertToBMP("CT000000_jpg.dcm", "2.jpg");
+	bool result = convertManager->convertToBMP(originFilePath, newFilePath);
 	if (result) {
 
 	}
@@ -181,6 +181,21 @@ void MainWidget::convertImgToJpeg()
 	}
 	DcmRLEDecoderRegistration::cleanup(); // 注销RLE解压缩编解码器
 	DJDecoderRegistration::cleanup(); // 注销JPEG解压缩编解码器
+}
+
+void MainWidget::selectFileToConvert() {
+	QString filePath = QFileDialog::getOpenFileName(
+		this,
+		tr("choose a .dcm file"),
+		"C:/",
+		tr("DICOM(*.dcm)"));
+	if (!filePath.isEmpty()) {
+		QString path = QFileDialog::getSaveFileName(this, "save", "./", "JPEG(*.jpeg)");
+		if (!path.isEmpty()) {
+			this->convertImgToJpeg(filePath.toStdString(), path.toStdString());
+		}
+	}
+
 }
 
 void MainWidget::saveCompressedFile() {
@@ -375,7 +390,7 @@ void MainWidget::setupMenu(){
 	QMenuBar *menuBar = new QMenuBar(this);
 
 	QMenu *openMenu = new QMenu("Open", menuBar);
-	QAction *openAction = new QAction("open folder");
+	QAction *openAction = new QAction("Open Folder");
 	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
 	openMenu->addAction(openAction);
 	QAction *filterAction = new QAction("Filter");
@@ -385,10 +400,13 @@ void MainWidget::setupMenu(){
 	QMenu *imageMenu = new QMenu("Image Process", menuBar);
 	QAction *compressAction = new QAction("Compress");
 	QAction *deCompressAction = new QAction("Decompress");
+	QAction *convertToJpegAction = new QAction("Convert to JPEG");
 	connect(compressAction, SIGNAL(triggered()), this, SLOT(saveCompressedFile()));
 	connect(deCompressAction, SIGNAL(triggered()), this, SLOT(saveDecompressedFile()));
+	connect(convertToJpegAction, SIGNAL(triggered()), this, SLOT(selectFileToConvert()));
 	imageMenu->addAction(compressAction);
 	imageMenu->addAction(deCompressAction);
+	imageMenu->addAction(convertToJpegAction);
 
 	menuBar->addMenu(openMenu);
 	menuBar->addMenu(imageMenu);

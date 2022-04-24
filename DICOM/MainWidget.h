@@ -42,12 +42,12 @@ public slots:
 	// @brief 打开文件
 	void openFile();
 
-	void convertImgToJpeg();
 
 	/**
 	 * @brief Compress the selected dicom file.
 	 * 
 	 */
+	void selectFileToConvert();
 	void saveCompressedFile();
 
 	/**
@@ -130,6 +130,14 @@ private:
 	 * @param newFilePath the place where to save the decompressed file
 	 */
 	void decompressImg(std::string newFilePath);
+
+	/**
+	 * @brief 将选定的图片转换成JPEG格式.
+	 * 
+	 * @param originFilePath 待转换图片路径
+	 * @param newFilePath 转换后的图片路径
+	 */
+	void convertImgToJpeg(std::string originFilePath, std::string newFilePath);
 };
 
 #endif // MAINWIDGET_H
