@@ -123,20 +123,17 @@
     <ClInclude Include="DCImageManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FilterWidget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DCFilterWidgetProtocol.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="DCTableWidgetProtocol.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterWidget.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="MainWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="DCAddNewTagDialog.h">
       <Filter>Header Files\UI</Filter>
     </QtMoc>
@@ -144,7 +141,10 @@
       <Filter>Header Files\UI</Filter>
     </QtMoc>
     <QtMoc Include="DCTabelWidget.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="MainWidget.h">
+      <Filter>Header Files\UI</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

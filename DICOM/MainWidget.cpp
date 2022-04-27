@@ -28,7 +28,7 @@
 #define LIST_TOP_MARGIN 30
 #define LIST_BOTTOM_MARGIN 10
 
-MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedDicomFile()
+MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedRow(-1)
 {
     setWindowTitle("DICOM");
     this->resize(PROGRAM_WIDTH, PROGRAM_HEIGHT);
@@ -126,7 +126,7 @@ void MainWidget::compressImg(std::string newFilePath)
 {
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 	
-	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile->getFileFormat();
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile()->getFileFormat();
 	auto dataset = fileformat->getDataset();
 		DJ_RPLossless params; // codec parameters, we use the defaults
 
@@ -145,7 +145,7 @@ void MainWidget::decompressImg(std::string newFilePath)
 {
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 
-	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile->getFileFormat();
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile()->getFileFormat();
 	auto dataset = fileformat->getDataset();
 	DJ_RPLossless params; // codec parameters, we use the defaults
 
@@ -273,12 +273,15 @@ void MainWidget::sectionChoose(int index)
 		table->setSelectionBehavior(QAbstractItemView::SelectRows);
 		table->setCurrentCell(index, QItemSelectionModel::Select);
 	}
-
-	if (isFiltered())
-		selectedDicomFile = filteredModelArray.at(index);
-	else 
-		selectedDicomFile = fileModelArray.at(index);
 	
+	selectedRow = index;
+}
+
+DCDicomFileModel * MainWidget::selectedDicomFile() {
+	if (isFiltered())
+		return filteredModelArray.at(selectedRow);
+	else
+		return fileModelArray.at(selectedRow);
 }
 
 void MainWidget::onPatientHeaderClicked(int row) {
@@ -302,10 +305,10 @@ void MainWidget::updateTempChanges(int tableIndex, int row, int col, string newV
 {
 	DCTabelWidget *table = tableVec.at(tableIndex);
 	DCScopeModel *scope = scopeVector.at(tableIndex);
-	selectedDicomFile = fileModelArray.at(row);
+	selectedRow = row;
 	DcmTagKey tagKey = scope->getTagInfoArray().at(col);
 
-	selectedDicomFile->updateTempChange(tagKey, newValue);
+	selectedDicomFile()->updateTempChange(tagKey, newValue);
 }
 
 void MainWidget::onHorizontalClicked(int col, DCTabelWidget * table)
@@ -390,18 +393,31 @@ void MainWidget::closeFilterWidget()
 }
 
 void MainWidget::saveAction() {
-	applyChangesToFile(selectedDicomFile);
+	applyChangesToFile(selectedDicomFile());
 }
 
 void MainWidget::saveAsAction() {
 	QString path = QFileDialog::getSaveFileName(this, "save", "./", "DICOM(*.dcm)");
 	if (!path.isEmpty()) {
-		applyChangesToFile(selectedDicomFile, path.toStdString());
+		applyChangesToFile(selectedDicomFile(), path.toStdString());
 	}
 }
 
 bool MainWidget::applyChangesToFile(DCDicomFileModel *filemodel, string newFileName) {
-	return filemodel->applyChanges(newFileName);
+	auto status = filemodel->applyChanges(newFileName);
+	if (status) {
+		for each (auto table in tableVec)
+		{
+			
+			auto colCount = table->columnCount();
+			for (int col = 0; col < colCount; col++) {
+				auto item = table->item(selectedRow, col);
+				item->setBackground(QBrush(QColor(255, 255, 255)));
+			}
+		}
+	}
+
+	return status;
 }
 
 void MainWidget::setupMenu(){

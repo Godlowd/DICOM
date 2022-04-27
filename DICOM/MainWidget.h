@@ -73,6 +73,8 @@ public slots:
 	 */
 	void sectionChoose(int index) override;
 
+	DCDicomFileModel * selectedDicomFile();
+
 	/**
 	 * @brief open a folder, read the dicom file in it and refresh three table.
 	 * 
@@ -104,14 +106,13 @@ private:
 
 	std::string lastPath;
 
+	int selectedRow;
 	std::vector<DCDicomFileModel *> fileModelArray;
 	std::vector<DCDicomFileModel *> filteredModelArray;
 	
 	DCTabelWidget *patientTable;
 	DCTabelWidget *studyTable;
 	DCTabelWidget *seriesTable;
-
-	DCDicomFileModel *selectedDicomFile;
 
 	/**
 	 * 三个表各自的筛选条件的集合，每一列的筛选条件对应map中的一个键值对.

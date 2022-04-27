@@ -30,7 +30,8 @@ DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tab
 	
 	QObject::connect(this->verticalHeader(), SIGNAL(sectionClicked(int)), delegate, SLOT(sectionChoose(int)));
 	QObject::connect(this, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onCellClicked(int, int)));
-	QObject::connect(this, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(onItemChanged(QTableWidgetItem *)));
+	QObject::connect(this, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(onCurrentCellChanged(int, int, int, int)));
+	QObject::connect(this, SIGNAL(cellChanged(int, int)), this, SLOT(onCellChanged(int, int)));
 }
 
 void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
@@ -50,12 +51,12 @@ void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray
 void DCTabelWidget::setDataForRow(int row, vector<string> value)
 {
 	for (int index = 0; index < value.size(); index++) {
+		if (!isFiltering)
+			dataMap.at(row) = value;
 		auto str = value.at(index);
 		QTableWidgetItem *item = new QTableWidgetItem(str.c_str());
 		item->setTextAlignment(Qt::AlignCenter);
 		this->setItem(row, index, item);
-		if (!isFiltering)
-			dataMap.at(row) = value;
 	}
 }
 
@@ -148,9 +149,17 @@ void DCTabelWidget::onCellClicked(int row, int col)
 	editCol = col;
 }
 
-void DCTabelWidget::onItemChanged(QTableWidgetItem * item)
+void DCTabelWidget::onCellChanged(int row, int col)
 {
-	string newValue = item->text().toStdString();
-	if (delegate != nullptr && editRow != -1 && editCol != -1)
-		delegate->updateTempChanges(tableIndex, editRow, editCol, newValue);
+	if (dataMap.size() > row && dataMap.at(row).size() > col) {
+		string oldValue = dataMap.at(row).at(col);
+		string newValue = this->item(row, col)->text().toStdString();
+
+		if (delegate != nullptr && editRow != -1 && editCol != -1 && oldValue != newValue) {
+			dataMap.at(row).at(col) = newValue;
+			delegate->updateTempChanges(tableIndex, editRow, editCol, newValue);
+			this->item(row, col)->setBackground(Qt::gray);
+		}
+	}
+
 }

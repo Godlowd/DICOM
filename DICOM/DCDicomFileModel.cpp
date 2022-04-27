@@ -1,4 +1,4 @@
-#include "DCDicomFileModel.h"
+﻿#include "DCDicomFileModel.h"
 DCDicomFileModel::DCDicomFileModel()
 {
 	this->fileFormat = nullptr;
@@ -78,10 +78,17 @@ bool DCDicomFileModel::applyChanges(string newFileName)
 		this->fileFormat->getDataset()->putAndInsertString(tag, value.c_str(), true);
 	}
 
+	bool status;
 	if (newFileName == "")
-		return fileFormat->saveFile(fileName.c_str(), EXS_LittleEndianExplicit).good();
+		status = fileFormat->saveFile(fileName.c_str(), EXS_LittleEndianExplicit).good();
 	else
-		return fileFormat->saveFile(newFileName.c_str(), EXS_LittleEndianExplicit).good();
+		status = fileFormat->saveFile(newFileName.c_str(), EXS_LittleEndianExplicit).good();
+
+	// 更改全部成功应用后，清除临时更改，否则保持原状
+	if (status)
+		tempChanges.clear();
+
+	return status;
 }
 
 void DCDicomFileModel::updateTempChange(DcmTagKey key, string value)
