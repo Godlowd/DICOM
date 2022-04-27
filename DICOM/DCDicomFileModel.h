@@ -1,30 +1,58 @@
-#pragma once
+ï»¿#pragma once
 #include "dcmtk/config/osconfig.h"
 #include "dcmtk/dcmdata/dctk.h"
 #include <vector>
 #include <memory>
+#include <map>
 
+using namespace std;
 class DCDicomFileModel
 {
 public:
 	DCDicomFileModel::DCDicomFileModel();
-	DCDicomFileModel::DCDicomFileModel(std::string filePath);
+	DCDicomFileModel::DCDicomFileModel(string filePath);
 	DCDicomFileModel::DCDicomFileModel(DcmFileFormat fileFormat);
 	void DCDicomFileModel::setFileFormat(DcmFileFormat fileFormat);
 
-	// @brief ¸ù¾İÖ¸¶¨µÄtag¶ÁÈ¡Êı¾İ, Èç¹ûDICOMÎÄ¼şÖĞ¶ÔÓ¦µÄtag²»´æÔÚÔò·µ»ØµÄDcmElementÎªnull
-	// @param tags Òª²éÑ¯µÄÊı¾İ¶ÔÓ¦µÄtag
-	std::vector<std::string> DCDicomFileModel::getValueForTags(std::vector<DcmTagKey> tags);
+	// @brief æ ¹æ®æŒ‡å®šçš„tagè¯»å–æ•°æ®, å¦‚æœDICOMæ–‡ä»¶ä¸­å¯¹åº”çš„tagä¸å­˜åœ¨åˆ™è¿”å›çš„DcmElementä¸ºnull
+	// @param tags è¦æŸ¥è¯¢çš„æ•°æ®å¯¹åº”çš„tag
+	vector<string> DCDicomFileModel::getValueForTags(vector<DcmTagKey> tags);
 
 	/**
-	 * ÔÚµ±Ç°ÎÄ¼şÖĞ£¬²éÑ¯¸ø¶¨µÄtagµÄÖµ.
+	 * åœ¨å½“å‰æ–‡ä»¶ä¸­ï¼ŒæŸ¥è¯¢ç»™å®šçš„tagçš„å€¼.
 	 * 
-	 * @param tag Òª²éÑ¯µÄtag
-	 * @return ²éÑ¯µÄ½á¹ûÒÔ×Ö·û´®µÄĞÎÊ½·µ»Ø
+	 * @param tag è¦æŸ¥è¯¢çš„tag
+	 * @return æŸ¥è¯¢çš„ç»“æœä»¥å­—ç¬¦ä¸²çš„å½¢å¼è¿”å›
 	 */
-	std::string DCDicomFileModel::getStringForTag(DcmTagKey tag);
+	string DCDicomFileModel::getStringForTag(DcmTagKey tag);
 
-	std::shared_ptr<DcmFileFormat> getFileFormat();
+	shared_ptr<DcmFileFormat> getFileFormat();
+
+	/**
+	 * @brief è·å–DicomFileModelå¯¹åº”çš„æ–‡ä»¶å..
+	 * 
+	 * @return 
+	 */
+	const string getFileName();
+
+	/**
+	 * @brief å°†æ”¹åŠ¨åº”ç”¨äºæ–‡ä»¶.
+	 * 
+	 * @param newFileName é»˜è®¤åº”ç”¨äºå½“å‰æ–‡ä»¶ï¼Œå¦‚æœä¸ä¸ºç©ºï¼Œç”ŸæˆæŒ‡å®šæ–‡ä»¶åçš„æ–°æ–‡ä»¶å¹¶åº”ç”¨æ”¹åŠ¨
+	 */
+	bool applyChanges(string newFileName = "");
+
+	void updateTempChange(DcmTagKey key, string value);
 private:
-	std::shared_ptr<DcmFileFormat> fileFormat;
+	shared_ptr<DcmFileFormat> fileFormat;
+
+	/**
+	 * DicomFileModelå¯¹åº”çš„æ–‡ä»¶å.
+	 */
+	string fileName;
+
+	/**
+	 * å¯¹æ–‡ä»¶çš„ä¸´æ—¶æ”¹åŠ¨.
+	 */
+	map<DcmTagKey, string> tempChanges;
 };

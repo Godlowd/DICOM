@@ -10,6 +10,7 @@ DCDicomFileModel::DCDicomFileModel(std::string filePath)
 	OFCondition status = fileformat.loadFile(filePath.c_str());
 	if (status.good()) {
 		fileFormat = std::make_shared<DcmFileFormat>(fileformat.getDataset());
+		fileName = filePath;
 	}
 }
 
@@ -58,4 +59,32 @@ std::string DCDicomFileModel::getStringForTag(DcmTagKey tag)
 std::shared_ptr<DcmFileFormat> DCDicomFileModel::getFileFormat()
 {
 	return fileFormat;
+}
+
+const std::string DCDicomFileModel::getFileName()
+{
+	return fileName;
+}
+
+bool DCDicomFileModel::applyChanges(string newFileName)
+{
+	map<DcmTagKey, string>::iterator it;
+
+	for (it = tempChanges.begin(); it != tempChanges.end(); it++) {
+		auto tagKey = it->first;
+		auto value = it->second;
+
+		DcmTag tag = DcmTag(tagKey.getGroup(), tagKey.getElement());
+		this->fileFormat->getDataset()->putAndInsertString(tag, value.c_str(), true);
+	}
+
+	if (newFileName == "")
+		return fileFormat->saveFile(fileName.c_str(), EXS_LittleEndianExplicit).good();
+	else
+		return fileFormat->saveFile(newFileName.c_str(), EXS_LittleEndianExplicit).good();
+}
+
+void DCDicomFileModel::updateTempChange(DcmTagKey key, string value)
+{
+	tempChanges[key] = value;
 }

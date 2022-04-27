@@ -20,8 +20,9 @@
 #include "DCAddNewScopeProtocol.h"
 #include "DCTabelWidget.h"
 #include "FilterWidget.h"
+#include "DCTableWidgetProtocol.h"
 
-class MainWidget : public QWidget
+class MainWidget : public QWidget, public DCTableWidgetProtocol
 {
     Q_OBJECT
 public:
@@ -61,7 +62,7 @@ public slots:
 	 * 
 	 * @param fileArray
 	 */
-	void updateView(std::vector<DCDicomFileModel> fileArray, bool isFiltering = false);
+	void updateView(std::vector<DCDicomFileModel *> fileArray, bool isFiltering = false);
 
 	void filterTable();
 
@@ -70,7 +71,7 @@ public slots:
 	 * 
 	 * @param index selected index
 	 */
-	void sectionChoose(int index);
+	void sectionChoose(int index) override;
 
 	/**
 	 * @brief open a folder, read the dicom file in it and refresh three table.
@@ -78,9 +79,10 @@ public slots:
 	 */
 	void readFileinFolder();
 
-	void onPatientHeaderClicked(int row);
-	void onStudyHeaderClicked(int row);
-	void onSeriesHeaderClicked(int row);
+	void onPatientHeaderClicked(int row) override;
+	void onStudyHeaderClicked(int row) override;
+	void onSeriesHeaderClicked(int row) override;
+	void updateTempChanges(int tableIndex, int row, int col, string newValue) override;
 
 	void onHorizontalClicked(int col, DCTabelWidget * table);
 
@@ -89,6 +91,12 @@ public slots:
 
 	void closeFilterWidget();
 
+	void saveAction();
+
+	void saveAsAction();
+
+	bool applyChangesToFile(DCDicomFileModel *filemodel, string newFileName = "");
+
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCTabelWidget *> tableVec;
@@ -96,14 +104,14 @@ private:
 
 	std::string lastPath;
 
-	std::vector<DCDicomFileModel> fileModelArray;
-	std::vector<DCDicomFileModel> filteredModelArray;
+	std::vector<DCDicomFileModel *> fileModelArray;
+	std::vector<DCDicomFileModel *> filteredModelArray;
 	
 	DCTabelWidget *patientTable;
 	DCTabelWidget *studyTable;
 	DCTabelWidget *seriesTable;
 
-	DCDicomFileModel selectedDicomFile;
+	DCDicomFileModel *selectedDicomFile;
 
 	/**
 	 * 三个表各自的筛选条件的集合，每一列的筛选条件对应map中的一个键值对.

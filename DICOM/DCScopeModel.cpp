@@ -53,7 +53,7 @@ const std::vector<DcmTagKey> DCScopeModel::getTagInfoArray()
 	return tagInfoArray;
 }
 
-void DCScopeModel::loadAllData(std::vector<DCDicomFileModel> fileArray)
+void DCScopeModel::loadAllData(std::vector<DCDicomFileModel *> fileArray)
 {
 	tagValueArray.clear();
 	for (auto file : fileArray) {
@@ -62,8 +62,8 @@ void DCScopeModel::loadAllData(std::vector<DCDicomFileModel> fileArray)
 	}
 }
 
-std::vector<std::string> DCScopeModel::getValueFrom(DCDicomFileModel file, std::vector<DcmTagKey> tagInfos)
+std::vector<std::string> DCScopeModel::getValueFrom(DCDicomFileModel * file, std::vector<DcmTagKey> tagInfos)
 {
-	return file.getValueForTags(tagInfos);
+	return file->getValueForTags(tagInfos);
 }
 

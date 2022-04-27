@@ -1,4 +1,4 @@
-#include "DCImageConvertManager.h"
+﻿#include "DCImageConvertManager.h"
 #include "dcmtk/dcmimgle/dcmimage.h"
 #include "dcmtk/config/osconfig.h"
 #include "dcmtk/dcmdata/dctk.h"

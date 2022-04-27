@@ -24,8 +24,7 @@
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
-#define LIST_WIDTH 1500
-#define LIST_HEIGHT 280
+
 #define LIST_TOP_MARGIN 30
 #define LIST_BOTTOM_MARGIN 10
 
@@ -39,30 +38,24 @@ MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedDi
 
 	DCScopeModel *patientScope = new DCScopeModel(CommonTag::PATIENT_TAGS);
 	scopeVector.push_back(patientScope);
-	patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), false);
+	patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), 0, this, false);
 	patientTable->move(0, LIST_TOP_MARGIN);
-	patientTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(patientTable);
-	connect(patientTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
-	connect(patientTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onPatientHeaderClicked(int)));
+	QObject::connect(patientTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onPatientHeaderClicked(int)));
 
 	DCScopeModel *studyScope = new DCScopeModel(CommonTag::STUDY_TAGS);
 	scopeVector.push_back(studyScope);
-	studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), false);
+	studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), 1, this, false);
 	studyTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN );
-	studyTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(studyTable);
-	connect(studyTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
-	connect(studyTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onStudyHeaderClicked(int)));
+	QObject::connect(studyTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onStudyHeaderClicked(int)));
 
 	DCScopeModel *seriesScope = new DCScopeModel(CommonTag::SERIES_TAGS);
 	scopeVector.push_back(seriesScope);
-	seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels());
+	seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels(), 2, this);
 	seriesTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN + studyTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN);
-	seriesTable->resize(LIST_WIDTH, LIST_HEIGHT);
 	tableVec.push_back(seriesTable);
-	connect(seriesTable->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sectionChoose(int)));
-	connect(seriesTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onSeriesHeaderClicked(int)));
+	QObject::connect(seriesTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onSeriesHeaderClicked(int)));
 }
 
 void MainWidget::openFile()
@@ -133,7 +126,7 @@ void MainWidget::compressImg(std::string newFilePath)
 {
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 	
-	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile.getFileFormat();
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile->getFileFormat();
 	auto dataset = fileformat->getDataset();
 		DJ_RPLossless params; // codec parameters, we use the defaults
 
@@ -152,7 +145,7 @@ void MainWidget::decompressImg(std::string newFilePath)
 {
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 
-	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile.getFileFormat();
+	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile->getFileFormat();
 	auto dataset = fileformat->getDataset();
 	DJ_RPLossless params; // codec parameters, we use the defaults
 
@@ -225,7 +218,7 @@ void MainWidget::readFileinFolder()
 
 		fileModelArray.clear();
 		foreach(QFileInfo info, fileInfo) {
-			DCDicomFileModel model = DCDicomFileModel(info.absoluteFilePath().toStdString());
+			DCDicomFileModel *model = new DCDicomFileModel(info.absoluteFilePath().toStdString());
 			fileModelArray.push_back(model);
 		}
 
@@ -233,7 +226,7 @@ void MainWidget::readFileinFolder()
 	}
 }
 
-void MainWidget::updateView(std::vector<DCDicomFileModel> fileArray, bool isFiltering) {
+void MainWidget::updateView(std::vector<DCDicomFileModel *> fileArray, bool isFiltering) {
 	if (scopeVector.size() != tableVec.size())
 		return;
 
@@ -264,7 +257,7 @@ void MainWidget::filterTable() {
 		}
 	}
 
-	std::vector<DCDicomFileModel> copyFileArray;
+	std::vector<DCDicomFileModel *> copyFileArray;
 	std::set<int>::iterator iter;
 	for (int index = 0; index < fileModelArray.size(); index++) {
 		if (rowSet.count(index))
@@ -303,6 +296,16 @@ void MainWidget::onSeriesHeaderClicked(int row)
 {
 	selectedTable = seriesTable;
 	onHorizontalClicked(row, seriesTable);
+}
+
+void MainWidget::updateTempChanges(int tableIndex, int row, int col, string newValue)
+{
+	DCTabelWidget *table = tableVec.at(tableIndex);
+	DCScopeModel *scope = scopeVector.at(tableIndex);
+	selectedDicomFile = fileModelArray.at(row);
+	DcmTagKey tagKey = scope->getTagInfoArray().at(col);
+
+	selectedDicomFile->updateTempChange(tagKey, newValue);
 }
 
 void MainWidget::onHorizontalClicked(int col, DCTabelWidget * table)
@@ -386,13 +389,34 @@ void MainWidget::closeFilterWidget()
 	}
 }
 
+void MainWidget::saveAction() {
+	applyChangesToFile(selectedDicomFile);
+}
+
+void MainWidget::saveAsAction() {
+	QString path = QFileDialog::getSaveFileName(this, "save", "./", "DICOM(*.dcm)");
+	if (!path.isEmpty()) {
+		applyChangesToFile(selectedDicomFile, path.toStdString());
+	}
+}
+
+bool MainWidget::applyChangesToFile(DCDicomFileModel *filemodel, string newFileName) {
+	return filemodel->applyChanges(newFileName);
+}
+
 void MainWidget::setupMenu(){
 	QMenuBar *menuBar = new QMenuBar(this);
 
-	QMenu *openMenu = new QMenu("Open", menuBar);
+	QMenu *openMenu = new QMenu("File", menuBar);
 	QAction *openAction = new QAction("Open Folder");
 	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
 	openMenu->addAction(openAction);
+	QAction *saveAction = new QAction(QString::fromLocal8Bit("保存"));
+	connect(saveAction, SIGNAL(triggered()), this, SLOT(saveAction()));
+	openMenu->addAction(saveAction);
+	QAction *saveAsAction = new QAction(QString::fromLocal8Bit("另存为"));
+	connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAsAction()));
+	openMenu->addAction(saveAsAction);
 	QAction *filterAction = new QAction("Filter");
 	connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTable()));
 	openMenu->addAction(filterAction);

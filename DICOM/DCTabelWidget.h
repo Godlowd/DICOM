@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QTableWidget>
 #include <string>
 #include <vector>
@@ -6,12 +6,15 @@
 #include <map>
 #include <set>
 #include "DCFilterWidgetProtocol.h"
+#include "DCTableWidgetProtocol.h"
 
 using namespace std;
-class DCTabelWidget : public QTableWidget, public DCFilterWidgetProtocol
+class MainWidget;
+class DCTabelWidget: public QTableWidget, public DCFilterWidgetProtocol
 {
+	Q_OBJECT
 public:
-	DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, bool adjustContent = true);
+	DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent = true);
 	void updateTable(std::vector<std::vector<std::string>> valueArray);
 	void setDataForRow(int row, vector<string> value);
 	
@@ -38,6 +41,11 @@ public:
 	void updateFilterCondition(int col, vector<string> filters);
 
 	bool isFiltering;
+
+public slots:
+	void onCellClicked(int row, int col);
+	void onItemChanged(QTableWidgetItem * item);
+
 private:
 
 	/**
@@ -52,6 +60,14 @@ private:
 	 */
 	map<int, vector<string>> filters;
 
-	
+	MainWidget *delegate;
+
+	int tableIndex;
+
+	/**
+	 * 当前正在编辑的cell的行号和列号.
+	 */
+	int editRow;
+	int editCol;
 };
 

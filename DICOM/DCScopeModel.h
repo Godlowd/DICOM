@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <QAbstractListModel>
 #include "dcmtk/config/osconfig.h"
@@ -6,7 +6,7 @@
 #include "DCDicomFileModel.h"
 #include "DCDBManager.h"
 
-// ×Ô¶¨ÒåµÄtagĞòÁĞ£¬³ÆÖ®Îªscope
+// è‡ªå®šä¹‰çš„tagåºåˆ—ï¼Œç§°ä¹‹ä¸ºscope
 class DCScopeModel : public QAbstractListModel
 {
 public:
@@ -17,17 +17,17 @@ public:
 
 public:
 	/**
-	 * »ñÈ¡Õ¹Ê¾ÔÚtableÉÏµÄ±íÍ·Ãû.
+	 * è·å–å±•ç¤ºåœ¨tableä¸Šçš„è¡¨å¤´å.
 	 * 
 	 * @return 
 	 */
 	std::vector<std::string> getTableHeaderLabels();
 
-	// @brief ËùÓĞµÄdicomÎÄ¼ş¶ÔÏóµÄ¶ÔÓ¦tagÖµ, tagµÄÖµÓÃ×Ö·û´®±íÊ¾
+	// @brief æ‰€æœ‰çš„dicomæ–‡ä»¶å¯¹è±¡çš„å¯¹åº”tagå€¼, tagçš„å€¼ç”¨å­—ç¬¦ä¸²è¡¨ç¤º
 	std::vector<std::vector<std::string>> tagValueArray;
-	// @brief »ñÈ¡¸ÃscopeÕ¹Ê¾ÔÚÁĞ±íÖĞµÄÃû×Ö
+	// @brief è·å–è¯¥scopeå±•ç¤ºåœ¨åˆ—è¡¨ä¸­çš„åå­—
 	std::string getName() const;
-	// @brief ÉèÖÃ¸ÃscopeÕ¹Ê¾ÔÚÁĞ±íÖĞµÄÃû×Ö
+	// @brief è®¾ç½®è¯¥scopeå±•ç¤ºåœ¨åˆ—è¡¨ä¸­çš„åå­—
 	void setName(std::string name);
 
 public:
@@ -37,30 +37,30 @@ public:
 	const std::vector<DcmTagKey> getTagInfoArray();
 
 	/**
-	 * ¼ÓÔØËùÓĞÎÄ¼şÖĞËùÓĞÖ¸¶¨µÄtagµÄÊı¾İ.
+	 * åŠ è½½æ‰€æœ‰æ–‡ä»¶ä¸­æ‰€æœ‰æŒ‡å®šçš„tagçš„æ•°æ®.
 	 * 
-	 * @param fileArray Òª¼ÓÔØµÄÎÄ¼ş
-	 * @param tagInfos Òª¶ÁÈ¡µÄtagÁĞ±í
+	 * @param fileArray è¦åŠ è½½çš„æ–‡ä»¶
+	 * @param tagInfos è¦è¯»å–çš„tagåˆ—è¡¨
 	 */
-	void loadAllData(std::vector<DCDicomFileModel> fileArray);
+	void loadAllData(std::vector<DCDicomFileModel *> fileArray);
 
 private:
 
 
 	/**
-	 * ´Óµ¥¸ödicomÎÄ¼şÖĞ¶ÁÈ¡Êı¾İ
+	 * ä»å•ä¸ªdicomæ–‡ä»¶ä¸­è¯»å–æ•°æ®
 	 * 
-	 * @param file Òª¶ÁÈ¡µÄdicomÎÄ¼ş
-	 * @param tagInfos Òª¶ÁÈ¡µÄtagÁĞ±í
-	 * @return ¶ÁÈ¡½á¹û£¬ÒÔ×Ö·û´®µÄĞÎÊ½·µ»Ø
+	 * @param file è¦è¯»å–çš„dicomæ–‡ä»¶
+	 * @param tagInfos è¦è¯»å–çš„tagåˆ—è¡¨
+	 * @return è¯»å–ç»“æœï¼Œä»¥å­—ç¬¦ä¸²çš„å½¢å¼è¿”å›
 	 */
-	std::vector<std::string> getValueFrom(DCDicomFileModel file, std::vector<DcmTagKey> tagInfos);
+	std::vector<std::string> getValueFrom(DCDicomFileModel * file, std::vector<DcmTagKey> tagInfos);
 
-	/// ÏÔÊ¾ÔÚseriesListµÄÃû³Æ
+	/// æ˜¾ç¤ºåœ¨seriesListçš„åç§°
 	std::string displayName;
 	DCDBManager *dbManager;
 
-	// @brief ĞèÒªÏÔÊ¾µÄËùÓĞtag
+	// @brief éœ€è¦æ˜¾ç¤ºçš„æ‰€æœ‰tag
 	std::vector<DcmTagKey> tagInfoArray;
 };
 

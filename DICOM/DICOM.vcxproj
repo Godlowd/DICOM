@@ -144,8 +144,9 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClInclude Include="DCImageConvertManager.h" />
     <ClInclude Include="DCImageManager.h" />
     <ClInclude Include="DCListView.h" />
-    <ClInclude Include="DCTabelWidget.h" />
+    <QtMoc Include="DCTabelWidget.h" />
     <ClInclude Include="DCScopeModel.h" />
+    <ClInclude Include="DCTableWidgetProtocol.h" />
     <ClInclude Include="FilterWidget.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="MainWidget.h" />

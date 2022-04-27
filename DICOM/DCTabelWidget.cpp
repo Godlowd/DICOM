@@ -1,10 +1,19 @@
 ﻿#include "DCTabelWidget.h"
 #include "qheaderview.h"
+#include "MainWidget.h"
 #include <algorithm>
 
-DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, bool adjustContent) :
-	QTableWidget(parent)
+#define LIST_WIDTH 1500
+#define LIST_HEIGHT 280
+DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent) :
+	QTableWidget(parent),
+	tableIndex(tableIndex),
+	delegate(delegate),
+	editRow(-1),
+	editCol(-1)
 {
+	resize(LIST_WIDTH, LIST_HEIGHT);
+	
 	QStringList header;
 	for each (string str in headerName)
 	{
@@ -17,7 +26,11 @@ DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, bool ad
 	}
 	else {
 		this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	}	
+	}
+	
+	QObject::connect(this->verticalHeader(), SIGNAL(sectionClicked(int)), delegate, SLOT(sectionChoose(int)));
+	QObject::connect(this, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onCellClicked(int, int)));
+	QObject::connect(this, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(onItemChanged(QTableWidgetItem *)));
 }
 
 void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
@@ -127,4 +140,17 @@ void DCTabelWidget::updateFilterCondition(int col, vector<string> filters)
 		this->filters.insert(make_pair(col, filters));
 	else
 		this->filters.at(col) = filters;
+}
+
+void DCTabelWidget::onCellClicked(int row, int col)
+{
+	editRow = row;
+	editCol = col;
+}
+
+void DCTabelWidget::onItemChanged(QTableWidgetItem * item)
+{
+	string newValue = item->text().toStdString();
+	if (delegate != nullptr && editRow != -1 && editCol != -1)
+		delegate->updateTempChanges(tableIndex, editRow, editCol, newValue);
 }
