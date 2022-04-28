@@ -1,11 +1,11 @@
-﻿#include "DCTabelWidget.h"
+﻿#include "DCTableWidget.h"
 #include "qheaderview.h"
 #include "MainWidget.h"
 #include <algorithm>
 
 #define LIST_WIDTH 1500
 #define LIST_HEIGHT 280
-DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent) :
+DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent) :
 	QTableWidget(parent),
 	tableIndex(tableIndex),
 	delegate(delegate),
@@ -34,7 +34,7 @@ DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tab
 	QObject::connect(this, SIGNAL(cellChanged(int, int)), this, SLOT(onCellChanged(int, int)));
 }
 
-void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
+void DCTableWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
 {
 	this->setRowCount(valueArray.size());
 	if (!isFiltering) {
@@ -48,19 +48,19 @@ void DCTabelWidget::updateTable(std::vector<std::vector<std::string>> valueArray
 	resizeRowsToContents();
 }
 
-void DCTabelWidget::setDataForRow(int row, vector<string> value)
+void DCTableWidget::setDataForRow(int row, vector<string> value)
 {
 	for (int index = 0; index < value.size(); index++) {
 		if (!isFiltering)
 			dataMap.at(row) = value;
-		auto str = value.at(index);
-		QTableWidgetItem *item = new QTableWidgetItem(str.c_str());
+		auto str = value.at(index).c_str();
+		QTableWidgetItem *item = new QTableWidgetItem(QString::fromLocal8Bit(str));
 		item->setTextAlignment(Qt::AlignCenter);
 		this->setItem(row, index, item);
 	}
 }
 
-vector<int> DCTabelWidget::filter()
+vector<int> DCTableWidget::filter()
 {
 	auto rowCount = dataMap.size();
 	map<int, string>::iterator iter;
@@ -99,7 +99,7 @@ vector<int> DCTabelWidget::filter()
 	return result;
 }
 
-const vector<string> DCTabelWidget::getDataMapAtCol(const int col)
+const vector<string> DCTableWidget::getDataMapAtCol(const int col)
 {
 	vector<string> result;
 	auto rowCount = dataMap.size();
@@ -112,7 +112,7 @@ const vector<string> DCTabelWidget::getDataMapAtCol(const int col)
 	return result;
 }
 
-const vector<string> DCTabelWidget::getShowItemsAtCol(const int col)
+const vector<string> DCTableWidget::getShowItemsAtCol(const int col)
 {
 	vector<string> result;
 	auto rowCount = this->rowCount();
@@ -123,7 +123,7 @@ const vector<string> DCTabelWidget::getShowItemsAtCol(const int col)
 	return result;
 }
 
-const set<string> DCTabelWidget::getShowItemsSetAtCol(const int col)
+const set<string> DCTableWidget::getShowItemsSetAtCol(const int col)
 {
 	set<string> result;
 	auto rowCount = this->rowCount();
@@ -135,7 +135,7 @@ const set<string> DCTabelWidget::getShowItemsSetAtCol(const int col)
 	return result;
 }
 
-void DCTabelWidget::updateFilterCondition(int col, vector<string> filters)
+void DCTableWidget::updateFilterCondition(int col, vector<string> filters)
 {
 	if (this->filters.find(col) == this->filters.end())
 		this->filters.insert(make_pair(col, filters));
@@ -143,13 +143,22 @@ void DCTabelWidget::updateFilterCondition(int col, vector<string> filters)
 		this->filters.at(col) = filters;
 }
 
-void DCTabelWidget::onCellClicked(int row, int col)
+void DCTableWidget::disableCellForCol(int col)
+{
+	auto rowCount = this->rowCount();
+	for (int row = 0; row < rowCount; row++) {
+		auto item = this->item(row, col);
+		item->setFlags(item->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsSelectable));
+	}
+}
+
+void DCTableWidget::onCellClicked(int row, int col)
 {
 	editRow = row;
 	editCol = col;
 }
 
-void DCTabelWidget::onCellChanged(int row, int col)
+void DCTableWidget::onCellChanged(int row, int col)
 {
 	if (dataMap.size() > row && dataMap.at(row).size() > col) {
 		string oldValue = dataMap.at(row).at(col);

@@ -32,7 +32,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>core;xml;sql;gui;widgets;qml;</QtModules>
+    <QtModules>core;xml;sql;gui;axcontainer;widgets;qml;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -105,12 +105,14 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
   <ItemGroup>
     <ClCompile Include="DCAddNewScopeDialog.cpp" />
     <ClCompile Include="DCAddNewTagDialog.cpp" />
+    <ClCompile Include="DCAllTagTable.cpp" />
     <ClCompile Include="DCDBManager.cpp" />
     <ClCompile Include="DCDicomFileModel.cpp" />
+    <ClCompile Include="DCExcelReader.cpp" />
     <ClCompile Include="DCImageConvertManager.cpp" />
     <ClCompile Include="DCImageManager.cpp" />
     <ClCompile Include="DCListView.cpp" />
-    <ClCompile Include="DCTabelWidget.cpp" />
+    <ClCompile Include="DCTableWidget.cpp" />
     <ClCompile Include="DCScopeModel.cpp" />
     <ClCompile Include="FilterWidget.cpp" />
     <ClCompile Include="main.cpp" />
@@ -138,18 +140,26 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <QtMoc Include="DCAddNewScopeDialog.h" />
     <ClInclude Include="DCAddNewScopeProtocol.h" />
     <ClInclude Include="DCAddNewTagProtocal.h" />
+    <ClInclude Include="DCAllTagTable.h" />
     <ClInclude Include="DCDBManager.h" />
     <ClInclude Include="DCDicomFileModel.h" />
+    <ClInclude Include="DCExcelReader.h" />
     <ClInclude Include="DCFilterWidgetProtocol.h" />
     <ClInclude Include="DCImageConvertManager.h" />
     <ClInclude Include="DCImageManager.h" />
     <ClInclude Include="DCListView.h" />
-    <QtMoc Include="DCTabelWidget.h" />
+    <QtMoc Include="DCTableWidget.h" />
     <ClInclude Include="DCScopeModel.h" />
     <ClInclude Include="DCTableWidgetProtocol.h" />
     <ClInclude Include="FilterWidget.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="MainWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxBase.lib" />
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxBased.lib" />
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxContainer.lib" />
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxContainerd.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

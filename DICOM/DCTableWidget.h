@@ -10,11 +10,11 @@
 
 using namespace std;
 class MainWidget;
-class DCTabelWidget: public QTableWidget, public DCFilterWidgetProtocol
+class DCTableWidget: public QTableWidget, public DCFilterWidgetProtocol
 {
 	Q_OBJECT
 public:
-	DCTabelWidget::DCTabelWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent = true);
+	DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent = true);
 	void updateTable(std::vector<std::vector<std::string>> valueArray);
 	void setDataForRow(int row, vector<string> value);
 	
@@ -35,10 +35,24 @@ public:
 	 */
 	const vector<string> getDataMapAtCol(const int col);
 
+	/**
+	 * @brief 获取当前展示的某一列的数据，如果table正在筛选，则返回筛选后的数据。
+	 *		  若想获得无筛选条件的当前列的数据，则应该使用getDataMapAtCol.
+	 * 
+	 * @param col
+	 * @return 
+	 */
 	const vector<string> getShowItemsAtCol(const int col);
 	const set<string> getShowItemsSetAtCol(const int col);
 
 	void updateFilterCondition(int col, vector<string> filters);
+
+	/**
+	 * @brief 禁用某一列的cell，使其不可点击.
+	 * 
+	 * @param col 要禁用的列索引
+	 */
+	void disableCellForCol(int col);
 
 	bool isFiltering;
 

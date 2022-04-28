@@ -1,0 +1,112 @@
+"(0002,0000)",File Meta Information Group Length 
+"(0002,0001)",File Meta Information Version 
+"(0002,0002)",Media Storage SOP Class UID 
+"(0002,0003)",Media Storage SOP Instance UID 
+"(0002,0010)",Transfer Syntax UID 
+"(0002,0012)",Implementation Class UID 
+"(0002,0013)",Implementation Version Name 
+"(0008,0005)",Specific Character Set 
+"(0008,0008)",Image Type 
+"(0008,0012)",Instance Creation Date 
+"(0008,0013)",Instance Creation Time 
+"(0008,0014)",Instance Creator UID 
+"(0008,0016)",SOP Class UID 
+"(0008,0018)",SOP Instance UID 
+"(0008,0020)",Study Date 
+"(0008,0021)",Series Date 
+"(0008,0022)",Acquisition Date 
+"(0008,0023)",Content Date 
+"(0008,0030)",Study Time 
+"(0008,0031)",Series Time 
+"(0008,0032)",Acquisition Time 
+"(0008,0033)",Content Time 
+"(0008,0050)",Accession Number 
+"(0008,0060)",Modality 
+"(0008,0070)",Manufacturer 
+"(0008,0090)",Referring Physician's Name
+"(0008,1010)",Station Name 
+"(0008,1030)",Study Description 
+"(0008,103E)",Series Description 
+"(0008,1090)",Manufacturer's Model Name 
+"(0010,0010)",Patient's Name 
+"(0010,0020)",Patient ID 
+"(0010,0030)",Patient's Birth Date 
+"(0010,0040)",Patient's Sex 
+"(0010,1010)",Patient's Age 
+"(0010,1020)",Patient's Size 
+"(0010,1030)",Patient's Weight 
+"(0018,0031)",Radiopharmaceutical 
+"(0018,0050)",Slice Thickness 
+"(0018,0071)",Acquisition Termination Condition 
+"(0018,0073)",Acquisition Start Condition 
+"(0018,0074)",Acquisition Start Condition Data 
+"(0018,0075)",Acquisition Termination Condition Data 
+"(0018,1020)",Software Versions 
+"(0018,1030)",Protocol Name 
+"(0018,1060)",Trigger Time R
+"(0018,1063)","Frame Time 帧时间(0018,1063)是多帧图像中各帧之间的标称时间(以毫秒为单位)。"
+"(0018,1072)",Radiopharmaceutical Start Time 。
+"(0018,1074)","Radionuclide Total Dose 在放射治疗开始时间(0018,1072)给病人的放射治疗剂量，单位为贝克勒尔(Bq)。"
+"(0018,1075)",Radionuclide Half Life 放射性核素的半衰期，以秒为单位
+"(0018,1076)",Radionuclide Positron Fraction 放射性核素正电子分量
+"(0018,1083)","Intervals Acquired 在低R-R值(0018,1081)和高R-R值(0018,1082)范围内的心跳数。"
+"(0018,1084)","Intervals Rejected 低于低R-R值(0018,1081)和高R-R值(0018,1082)的心跳次数"
+"(0018,1100)",Reconstruction Diameter 重建图像的数据所在区域的直径，单位为mm。
+"(0018,1120)",Gantry/Detector Tilt 龙门架/探测器的倾斜角度。
+"(0018,1147)",Field of View Shape FOV形状
+"(0018,1149)",Field of View Dimension(s) FOV维度
+"(0018,1181)",Collimator Type 准直仪类型
+"(0018,1242)",Actual Frame Duration 此图像的数据采集经过的时间(以毫秒为单位)
+"(0018,5100)",Patient Position 病人相对于设备的位置描述符
+"(0020,000D)",Study Instance UID study的唯一标识符。
+"(0020,000E)",Series Instance UID series的唯一标识符。
+"(0020,0010)",Study ID 检查ID
+"(0020,0011)",Series Number 序列号：用于识别不同检查
+"(0020,0013)",Instance Number 图像码：辨识图像的号码
+"(0020,0032)",Image Position (Patient) 图像位置：图像左上角在空间坐标系中的三维坐标，单位mm。如果在检查中，则指向序列中第一张影像左上角坐标
+"(0020,0037)",Image Orientation (Patient) 图像方位
+"(0020,0052)",Frame of Reference UID series的参照唯一标识符。
+"(0020,1040)",Position Reference Indicator 用作参考的部分图像目标
+"(0020,1041)",Slice Location 切片位置：实际的相对位置，单位mm
+"(0028,0002)",Samples per Pixel 图像采样率
+"(0028,0004)",Photometric Interpretation 光度计：对于CT图，使用两个枚举值MONOCHROME1/2。此值用于判断图像是否为彩色，RGB是真彩色，MONOCHROME为灰度图，还有其他……
+"(0028,0006)","Planar Configuration 指示像素数据是按平面颜色编码还是按像素颜色编码。如果每个像素的样本(0028,0002)的值大于1则需要。"
+"(0028,0010)",Rows 图像总行数 / 行分辨率
+"(0028,0011)",Columns 图像总列数 / 列分辨率
+"(0028,0030)",Pixel Spacing 像素间距：像素中心之间的物理距离
+"(0028,0051)",Corrected Image 一个或多个值，表示在本series的图像上应用了哪些校正。
+"(0028,0100)",Bits Allocated 分配位数：存储每一个像素值时分配的位数，每个样本应当拥有相同值
+"(0028,0101)",Bits Stored 存储位数：12~16列举值，存储每一个像素用的位数，每个样本应当相同
+"(0028,0102)",High Bit 高位，每个样本应当相同
+"(0028,0103)",Pixel Representation 像素数据的表现类型：枚举值，0000H=无符号整数，0001H=2的补码
+"(0028,1052)",Rescale Intercept 截距：如果表明不同模态的LUT颜色对应表不存在时，使用方程Units=m*SV+b，计算真实的像素值到呈现像素值。（DICOM中这个值为上式的b）
+"(0028,1053)","Rescale Slope 斜率，是0028,1052式子中的值m"
+"(0028,2110)",Lossy Image Compression 指定图像是否经历过有损压缩(在其生命周期中的某个时刻)。
+"(0054,0013)","Energy Window Range Sequence 描述本系列使用的能量窗的项目序列。在此序列中允许有一个或多个项目。"
+"(0054,0014)",Energy Window Lower Limit 能量窗的下限，单位是KeV
+"(0054,0015)",Energy Window Upper Limit 能量窗的上限，单位是KeV
+"(0054,0016)","Radiopharmaceutical Information Sequence 描述同位素信息的项目序列。本序列中应包含零个或多个项目。"
+"(0054,0081)",Number of Slices 本series中可能存在的最大slice数。
+"(0054,0202)",Type of Detector Motion 描述数据获取时的探测器运动
+"(0054,1000)",Series Type series的类型，有两个值
+"(0054,1001)",Units 像素值的单位
+"(0054,1002)",Counts Source 计数的主要来源。
+"(0054,1100)",Randoms Correction Method 随机校正
+"(0054,1101)",Attenuation Correction Method 衰减校正
+"(0054,1102)",Decay Correction 衰变矫正
+"(0054,1103)",Reconstruction Method 重建方法
+"(0054,1104)",Detector Lines of Response Used 探测器所使用的响应线
+"(0054,1105)",Scatter Correction Method 散射校正
+"(0054,1201)","Axial Mash (0054,1201)是多值的，定义为混合在一起的唯一响应轴线(LOR)的数量(仅在轴向视场中心)。"
+"(0054,1202)",Transverse Mash
+"(0054,1210)",Coincidence Window Width 
+"(0054,1300)",Frame Reference Time
+"(0054,1310)",Primary (Prompts) Counts Accumulated 
+"(0054,1311)",Secondary Counts Accumulated 
+"(0054,1320)",Slice Sensitivity Factor 
+"(0054,1321)","Decay Factor 
+"(0054,1322)",Dose Calibration Factor 
+"(0054,1323)",Scatter Fraction Factor 
+"(0054,1324)",Dead Time Factor 
+"(0054,1330)",Image Index 
+"(7FE0,0010)",Pixel Data 

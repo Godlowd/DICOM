@@ -18,7 +18,7 @@
 #include "DCScopeModel.h"
 #include "DCAddNewTagProtocal.h"
 #include "DCAddNewScopeProtocol.h"
-#include "DCTabelWidget.h"
+#include "DCTableWidget.h"
 #include "FilterWidget.h"
 #include "DCTableWidgetProtocol.h"
 
@@ -30,7 +30,7 @@ public:
 	FilterWidget* m_filterWidget;
 	QMap<int, QStringList> m_map;
 
-	DCTabelWidget *selectedTable;
+	DCTableWidget *selectedTable;
 
 // DCFilterWidgetProtocol
 public:
@@ -86,7 +86,7 @@ public slots:
 	void onSeriesHeaderClicked(int row) override;
 	void updateTempChanges(int tableIndex, int row, int col, string newValue) override;
 
-	void onHorizontalClicked(int col, DCTabelWidget * table);
+	void onHorizontalClicked(int col, DCTableWidget * table);
 
 
 	void filter(int col, QStringList showList);
@@ -99,9 +99,11 @@ public slots:
 
 	bool applyChangesToFile(DCDicomFileModel *filemodel, string newFileName = "");
 
+	void showAllTag();
+
 private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
-	std::vector<DCTabelWidget *> tableVec;
+	std::vector<DCTableWidget *> tableVec;
 	std::vector<DCScopeModel *> scopeVector;
 
 	std::string lastPath;
@@ -110,9 +112,9 @@ private:
 	std::vector<DCDicomFileModel *> fileModelArray;
 	std::vector<DCDicomFileModel *> filteredModelArray;
 	
-	DCTabelWidget *patientTable;
-	DCTabelWidget *studyTable;
-	DCTabelWidget *seriesTable;
+	DCTableWidget *patientTable;
+	DCTableWidget *studyTable;
+	DCTableWidget *seriesTable;
 
 	/**
 	 * 三个表各自的筛选条件的集合，每一列的筛选条件对应map中的一个键值对.

@@ -1,26 +1,32 @@
-﻿#include "MainWidget.h"
-#include "DCDicomFileModel.h"
-#include "DCScopeModel.h"
-#include <QStandardItemModel>
+﻿#include <QStandardItemModel>
 #include <QFileDialog>
-#include "DCAddNewTagDialog.h"
-#include "DCAddNewScopeDialog.h"
-#include "dcmtk/dcmjpeg/djencode.h"
-#include "dcmtk/dcmjpeg/djrplol.h"
-#include "DCImageConvertManager.h"
-#include "dcmtk/dcmdata/dcrledrg.h"
-#include "dcmtk/dcmjpeg/dipijpeg.h"
-#include "dcmtk/dcmjpeg/djdecode.h"
-#include "DCImageManager.h"
-#include "CommonDefine.h"
+#include <QDesktopWidget>
+#include <QApplication>
+#include <QMouseEvent>
+#include <QStringList>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
+
+#include "dcmtk/dcmjpeg/djencode.h"
+#include "dcmtk/dcmjpeg/djrplol.h"
+#include "dcmtk/dcmdata/dcrledrg.h"
+#include "dcmtk/dcmjpeg/dipijpeg.h"
+#include "dcmtk/dcmjpeg/djdecode.h"
+
+#include "MainWidget.h"
+#include "DCDicomFileModel.h"
+#include "DCScopeModel.h"
+#include "DCAddNewTagDialog.h"
+#include "DCAddNewScopeDialog.h"
+#include "DCImageConvertManager.h"
+#include "DCImageManager.h"
+#include "CommonDefine.h"
 #include "FilterWidget.h"
-#include <QMouseEvent>
 #include <set>
-#include <QStringList>
+#include "DCAllTagTable.h"
+#include "DCExcelReader.h"
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
@@ -38,21 +44,21 @@ MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedRo
 
 	DCScopeModel *patientScope = new DCScopeModel(CommonTag::PATIENT_TAGS);
 	scopeVector.push_back(patientScope);
-	patientTable = new DCTabelWidget(this, patientScope->getTableHeaderLabels(), 0, this, false);
+	patientTable = new DCTableWidget(this, patientScope->getTableHeaderLabels(), 0, this, false);
 	patientTable->move(0, LIST_TOP_MARGIN);
 	tableVec.push_back(patientTable);
 	QObject::connect(patientTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onPatientHeaderClicked(int)));
 
 	DCScopeModel *studyScope = new DCScopeModel(CommonTag::STUDY_TAGS);
 	scopeVector.push_back(studyScope);
-	studyTable = new DCTabelWidget(this, studyScope->getTableHeaderLabels(), 1, this, false);
+	studyTable = new DCTableWidget(this, studyScope->getTableHeaderLabels(), 1, this, false);
 	studyTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN );
 	tableVec.push_back(studyTable);
 	QObject::connect(studyTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onStudyHeaderClicked(int)));
 
 	DCScopeModel *seriesScope = new DCScopeModel(CommonTag::SERIES_TAGS);
 	scopeVector.push_back(seriesScope);
-	seriesTable = new DCTabelWidget(this, seriesScope->getTableHeaderLabels(), 2, this);
+	seriesTable = new DCTableWidget(this, seriesScope->getTableHeaderLabels(), 2, this);
 	seriesTable->move(0, LIST_TOP_MARGIN + patientTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN + studyTable->height() + LIST_BOTTOM_MARGIN + LIST_TOP_MARGIN);
 	tableVec.push_back(seriesTable);
 	QObject::connect(seriesTable->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(onSeriesHeaderClicked(int)));
@@ -124,6 +130,9 @@ void MainWidget::openFile()
 
 void MainWidget::compressImg(std::string newFilePath)
 {
+	if (nullptr == selectedDicomFile())
+		return;
+
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 	
 	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile()->getFileFormat();
@@ -143,6 +152,9 @@ void MainWidget::compressImg(std::string newFilePath)
 
 void MainWidget::decompressImg(std::string newFilePath)
 {
+	if (nullptr == selectedDicomFile())
+		return;
+
 	DJEncoderRegistration::registerCodecs(); // register JPEG codecs
 
 	std::shared_ptr<DcmFileFormat> fileformat = selectedDicomFile()->getFileFormat();
@@ -268,7 +280,7 @@ void MainWidget::filterTable() {
 
 void MainWidget::sectionChoose(int index)
 {
-	for each (DCTabelWidget * table in tableVec)
+	for each (DCTableWidget * table in tableVec)
 	{
 		table->setSelectionBehavior(QAbstractItemView::SelectRows);
 		table->setCurrentCell(index, QItemSelectionModel::Select);
@@ -278,10 +290,14 @@ void MainWidget::sectionChoose(int index)
 }
 
 DCDicomFileModel * MainWidget::selectedDicomFile() {
-	if (isFiltered())
-		return filteredModelArray.at(selectedRow);
-	else
-		return fileModelArray.at(selectedRow);
+	if (selectedRow != -1) {
+		if (isFiltered())
+			return filteredModelArray.at(selectedRow);
+		else
+			return fileModelArray.at(selectedRow);
+	}
+
+	return nullptr;
 }
 
 void MainWidget::onPatientHeaderClicked(int row) {
@@ -303,7 +319,7 @@ void MainWidget::onSeriesHeaderClicked(int row)
 
 void MainWidget::updateTempChanges(int tableIndex, int row, int col, string newValue)
 {
-	DCTabelWidget *table = tableVec.at(tableIndex);
+	DCTableWidget *table = tableVec.at(tableIndex);
 	DCScopeModel *scope = scopeVector.at(tableIndex);
 	selectedRow = row;
 	DcmTagKey tagKey = scope->getTagInfoArray().at(col);
@@ -311,7 +327,7 @@ void MainWidget::updateTempChanges(int tableIndex, int row, int col, string newV
 	selectedDicomFile()->updateTempChange(tagKey, newValue);
 }
 
-void MainWidget::onHorizontalClicked(int col, DCTabelWidget * table)
+void MainWidget::onHorizontalClicked(int col, DCTableWidget * table)
 {
 	//所有item
 	set<string> items;
@@ -420,11 +436,38 @@ bool MainWidget::applyChangesToFile(DCDicomFileModel *filemodel, string newFileN
 	return status;
 }
 
+void MainWidget::showAllTag() {
+	DCExcelReader excelReader;
+	vector<vector<string>> tagData = excelReader.loadCSV("DicomTag.csv");
+	vector<DcmTagKey *> tagVec;
+	vector<string> tagNameArray;
+	for each (auto valueVec in tagData)
+	{
+		auto groupId = valueVec.at(0).substr(2, 6);
+		auto elementId = valueVec.at(1).substr(0, 4);
+		valueVec.at(0) = groupId;
+		valueVec.at(1) = elementId;
+		auto tagName = valueVec.at(2);
+		DcmTagKey *tagKey = new DcmTagKey(stoi(groupId), stoi(elementId));
+		tagVec.push_back(tagKey);
+		tagNameArray.push_back(tagName);
+	}
+
+	vector<string> headerName = { "Tag", "Type", "Value", "Name" };
+	DCAllTagTable *allTagTable = new DCAllTagTable(this, headerName, 3, this);
+	allTagTable->setTagArray(tagVec);
+	allTagTable->setTagNameArray(tagNameArray);
+	allTagTable->loadAllTag(selectedDicomFile());
+	QDesktopWidget *desktop = QApplication::desktop();
+	allTagTable->move((desktop->width() - allTagTable->width()) / 2, (desktop->height() - allTagTable->height()) / 2);
+	allTagTable->show();
+}
+
 void MainWidget::setupMenu(){
 	QMenuBar *menuBar = new QMenuBar(this);
 
-	QMenu *openMenu = new QMenu("File", menuBar);
-	QAction *openAction = new QAction("Open Folder");
+	QMenu *openMenu = new QMenu(QString::fromLocal8Bit("文件"), menuBar);
+	QAction *openAction = new QAction(QString::fromLocal8Bit("打开文件夹"));
 	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
 	openMenu->addAction(openAction);
 	QAction *saveAction = new QAction(QString::fromLocal8Bit("保存"));
@@ -436,6 +479,9 @@ void MainWidget::setupMenu(){
 	QAction *filterAction = new QAction("Filter");
 	connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTable()));
 	openMenu->addAction(filterAction);
+	QAction *showAllTagAction = new QAction("DICOM");
+	connect(showAllTagAction, SIGNAL(triggered()), this, SLOT(showAllTag()));
+	openMenu->addAction(showAllTagAction);
 
 	QMenu *imageMenu = new QMenu("Image Process", menuBar);
 	QAction *compressAction = new QAction("Compress");

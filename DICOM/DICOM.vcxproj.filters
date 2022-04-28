@@ -44,6 +44,9 @@
     <Filter Include="DLL">
       <UniqueIdentifier>{9f4fcb3d-3bf8-4581-8139-99da77260915}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{9ab3cae8-1882-4edb-b9f9-cae722d86473}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -85,11 +88,17 @@
     <ClCompile Include="DCImageManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DCTabelWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FilterWidget.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCAllTagTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCTableWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DCExcelReader.cpp">
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +141,12 @@
     <ClInclude Include="FilterWidget.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="DCAllTagTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCExcelReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DCAddNewTagDialog.h">
@@ -140,10 +155,10 @@
     <QtMoc Include="DCAddNewScopeDialog.h">
       <Filter>Header Files\UI</Filter>
     </QtMoc>
-    <QtMoc Include="DCTabelWidget.h">
+    <QtMoc Include="MainWidget.h">
       <Filter>Header Files\UI</Filter>
     </QtMoc>
-    <QtMoc Include="MainWidget.h">
+    <QtMoc Include="DCTableWidget.h">
       <Filter>Header Files\UI</Filter>
     </QtMoc>
   </ItemGroup>
@@ -181,5 +196,19 @@
     <None Include="dcmimgle.dll">
       <Filter>DLL</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxBase.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxBased.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxContainer.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\..\..\..\..\..\Qt\5.14.2\msvc2017_64\lib\Qt5AxContainerd.lib">
+      <Filter>Lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
