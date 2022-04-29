@@ -128,6 +128,8 @@ private:
 
 	bool isFiltered();
 
+	void exporter();
+
 	/**
 	 * @brief Compress dicom image.
 	 * 

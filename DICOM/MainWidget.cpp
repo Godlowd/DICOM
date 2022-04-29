@@ -27,6 +27,7 @@
 #include <set>
 #include "DCAllTagTable.h"
 #include "DCExcelReader.h"
+#include "DCJsonExporter.h"
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
@@ -471,6 +472,11 @@ void MainWidget::showAllTag() {
 	QDesktopWidget *desktop = QApplication::desktop();
 	allTagTable->move((desktop->width() - allTagTable->width()) / 2, (desktop->height() - allTagTable->height()) / 2);
 	allTagTable->show();
+
+	DCJsonExporter *exporter = new DCJsonExporter(tagVec);
+	vector<DCDicomFileModel *> model;
+	model.push_back(selectedDicomFile());
+	exporter->exportDcmAsJson("test.json", model);
 }
 
 void MainWidget::setupMenu(){
@@ -510,4 +516,8 @@ void MainWidget::setupMenu(){
 
 bool MainWidget::isFiltered() {
 	return false;
+}
+
+void MainWidget::exporter() {
+	
 }

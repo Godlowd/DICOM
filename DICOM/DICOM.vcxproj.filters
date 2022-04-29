@@ -100,6 +100,9 @@
     <ClCompile Include="DCExcelReader.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
+    <ClCompile Include="DCJsonExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DCDicomFileModel.h">
@@ -145,6 +148,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DCExcelReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCJsonExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
