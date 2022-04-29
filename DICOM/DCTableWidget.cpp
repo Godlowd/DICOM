@@ -10,7 +10,8 @@ DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tab
 	tableIndex(tableIndex),
 	delegate(delegate),
 	editRow(-1),
-	editCol(-1)
+	editCol(-1),
+	isFiltering(false)
 {
 	resize(LIST_WIDTH, LIST_HEIGHT);
 	
@@ -34,21 +35,21 @@ DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tab
 	QObject::connect(this, SIGNAL(cellChanged(int, int)), this, SLOT(onCellChanged(int, int)));
 }
 
-void DCTableWidget::updateTable(std::vector<std::vector<std::string>> valueArray)
+void DCTableWidget::updateTable(std::vector<std::vector<std::string>> valueArray, int startRow)
 {
-	this->setRowCount(valueArray.size());
+	this->setRowCount(valueArray.size() + startRow);
 	if (!isFiltering) {
 		vector<vector<string>> tempDataMap(valueArray.size());
 		dataMap = tempDataMap;
 	}
 
 	for (int index = 0; index < valueArray.size(); index++) {
-		setDataForRow(index, valueArray.at(index));
+		setDataForRow(index, valueArray.at(index), startRow);
 	}
 	resizeRowsToContents();
 }
 
-void DCTableWidget::setDataForRow(int row, vector<string> value)
+void DCTableWidget::setDataForRow(int row, vector<string> value, int startRow)
 {
 	for (int index = 0; index < value.size(); index++) {
 		if (!isFiltering)
@@ -56,7 +57,7 @@ void DCTableWidget::setDataForRow(int row, vector<string> value)
 		auto str = value.at(index).c_str();
 		QTableWidgetItem *item = new QTableWidgetItem(QString::fromLocal8Bit(str));
 		item->setTextAlignment(Qt::AlignCenter);
-		this->setItem(row, index, item);
+		this->setItem(row + startRow, index, item);
 	}
 }
 
@@ -143,12 +144,65 @@ void DCTableWidget::updateFilterCondition(int col, vector<string> filters)
 		this->filters.at(col) = filters;
 }
 
-void DCTableWidget::disableCellForCol(int col)
+void DCTableWidget::disableCellForCol(vector<int> cols)
 {
 	auto rowCount = this->rowCount();
 	for (int row = 0; row < rowCount; row++) {
-		auto item = this->item(row, col);
-		item->setFlags(item->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsSelectable));
+		for each (int col in cols)
+		{
+			auto item = this->item(row, col);
+			//item->setFlags();
+			//item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+		}
+	}
+}
+
+vector<int> DCTableWidget::searchTextInCol(int col, string text)
+{
+	vector<int> result;
+	if (text == "") {
+		for (int row = 0; row < dataMap.size(); row++) {
+			result.push_back(row);
+		}
+
+		return result;
+	}
+
+	
+	auto rowCount = dataMap.size();
+	for (int row = 0; row < rowCount; row++) {
+		auto itemText = dataMap.at(row).at(col);
+		auto findResult = itemText.find(text);
+		if (findResult != string::npos)
+			result.push_back(row);
+	}
+
+	return result;
+}
+
+void DCTableWidget::hideRows(vector<int> rows)
+{
+	auto rowCount = dataMap.size();
+	for (int row = 0; row < rowCount; row++) {
+		vector<int>::iterator it = std::find(rows.begin(), rows.end(), row);
+		// 如果当前行不是要隐藏的
+		if (it != rows.end())
+			this->setRowHidden(row, true);
+		else
+			this->setRowHidden(row, false);
+	}
+}
+
+void DCTableWidget::showRowsOnly(vector<int> rows, int offset)
+{
+	auto rowCount = dataMap.size();
+	for (int row = 0; row < rowCount; row++) {
+		vector<int>::iterator it = std::find(rows.begin(), rows.end(), row);
+		// 如果当前行不是要隐藏的
+		if (it != rows.end())
+			this->setRowHidden(row + offset, false);
+		else
+			this->setRowHidden(row + offset, true);
 	}
 }
 

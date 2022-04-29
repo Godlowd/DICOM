@@ -15,8 +15,8 @@ class DCTableWidget: public QTableWidget, public DCFilterWidgetProtocol
 	Q_OBJECT
 public:
 	DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent = true);
-	void updateTable(std::vector<std::vector<std::string>> valueArray);
-	void setDataForRow(int row, vector<string> value);
+	void updateTable(std::vector<std::vector<std::string>> valueArray, int startRow = 0);
+	void setDataForRow(int row, vector<string> value, int startRow = 0);
 	
 	/**
 	 * @brief filter the table according to the filterMap.
@@ -52,9 +52,27 @@ public:
 	 * 
 	 * @param col 要禁用的列索引
 	 */
-	void disableCellForCol(int col);
+	void disableCellForCol(vector<int> cols);
 
 	bool isFiltering;
+
+	/**
+	 * @brief 在指定的列中搜索指定的文字.
+	 * 
+	 * @param col
+	 * @param text 要搜索的文本，如果是空字符串，则会返回所有row
+	 * @return 
+	 */
+	vector<int> searchTextInCol(int col, string text);
+
+	void hideRows(vector<int> rows);
+
+	/**
+	 * @brief 只展示指定的row, 其他的都隐藏.
+	 * 
+	 * @param rows
+	 */
+	void showRowsOnly(vector<int> rows, int offset = 0);
 
 public slots:
 	void onCellClicked(int row, int col);

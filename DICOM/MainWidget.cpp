@@ -445,16 +445,26 @@ void MainWidget::showAllTag() {
 	{
 		auto groupId = valueVec.at(0).substr(2, 6);
 		auto elementId = valueVec.at(1).substr(0, 4);
-		valueVec.at(0) = groupId;
-		valueVec.at(1) = elementId;
+
+		int group, element;
+		stringstream ss;
+		ss << std::hex << groupId;  
+		ss >> group;
+
+		stringstream sss;
+		sss << std::hex << elementId;
+		sss >> element;
+
+		valueVec.at(0) = to_string(group);
+		valueVec.at(1) = to_string(element);
 		auto tagName = valueVec.at(2);
-		DcmTagKey *tagKey = new DcmTagKey(stoi(groupId), stoi(elementId));
+		DcmTagKey *tagKey = new DcmTagKey(group, element);
 		tagVec.push_back(tagKey);
 		tagNameArray.push_back(tagName);
 	}
 
 	vector<string> headerName = { "Tag", "Type", "Value", "Name" };
-	DCAllTagTable *allTagTable = new DCAllTagTable(this, headerName, 3, this);
+	DCAllTagTable *allTagTable = new DCAllTagTable(this, headerName, 3, selectedDicomFile());
 	allTagTable->setTagArray(tagVec);
 	allTagTable->setTagNameArray(tagNameArray);
 	allTagTable->loadAllTag(selectedDicomFile());

@@ -9,7 +9,7 @@ class DCAllTagTable :
 	public QWidget
 {
 public:
-	DCAllTagTable::DCAllTagTable(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate);
+	DCAllTagTable::DCAllTagTable(QWidget *parent, vector<string> headerName, int tableIndex, DCDicomFileModel *fileModel);
 
 	void loadAllTag(DCDicomFileModel *fileModel);
 
@@ -22,10 +22,16 @@ public:
 
 	void setupCloseBtn();
 
+	vector<int> filter();
+
 public slots:
 	void onCloseBtnPressed();
 
-private:
+	void onSectionClicked(int);
+
+private: 
+
+	DCDicomFileModel *fileModel;
 	DCTableWidget *mainTable;
 	QPushButton *closeBtn;
 	/**
@@ -37,5 +43,10 @@ private:
 	 * DcmTag getName()返回的方法不一定有，所以统一从外部注入.
 	 */
 	vector<string> tagNameArray;
+
+	/**
+	 * 搜索框输入的筛选条件.
+	 */
+	vector<string> filterArray;
 };
 
