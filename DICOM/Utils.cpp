@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include <sstream>
 template <class T>
 // 将单独的一个对象包装成对应的向量
 static std::vector<T> Utils::singleObjectVectorWrapper(T singleObj) {
@@ -20,4 +20,12 @@ int Utils::resultSize(QSqlQuery query)
 	}
 
 	return 0;
+}
+
+string Utils::decToHex(int dec)
+{
+	stringstream ss;
+	ss << std::hex << dec;
+
+	return ss.str();
 }

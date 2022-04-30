@@ -476,7 +476,7 @@ void MainWidget::showAllTag() {
 	DCJsonExporter *exporter = new DCJsonExporter(tagVec);
 	vector<DCDicomFileModel *> model;
 	model.push_back(selectedDicomFile());
-	exporter->exportDcmAsJson("test.json", model);
+	exporter->exportDcmAsJson("testForW.json", model);
 }
 
 void MainWidget::setupMenu(){
