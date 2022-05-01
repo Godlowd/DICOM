@@ -132,6 +132,8 @@ private:
 
 	void exporter();
 
+	void updatePieChart(map<string, int> mapData);
+
 	/**
 	 * @brief Compress dicom image.
 	 * 

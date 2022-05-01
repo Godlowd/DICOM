@@ -8,6 +8,9 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
+#include <qpieslice.h>
+#include <QPieSlice>
+#include <QtCharts>
 
 #include "dcmtk/dcmjpeg/djencode.h"
 #include "dcmtk/dcmjpeg/djrplol.h"
@@ -334,6 +337,18 @@ void MainWidget::onHorizontalClicked(int col, DCTableWidget * table)
 	//所有item
 	set<string> items;
 	vector<string> dataMap = table->getDataMapAtCol(col);
+	map<string, int> timesCount;
+	for (auto data : dataMap) {
+		auto iter = timesCount.find(data);
+		if (iter != timesCount.end()) {
+			iter->second += 1;
+		}
+		else {
+			timesCount[data] = 1;
+		}
+	}
+	updatePieChart(timesCount);
+
 	std::copy(dataMap.begin(), dataMap.end(), std::inserter(items, items.end()));
 	//显示的item
 	set<string> showItems(table->getShowItemsSetAtCol(col));
@@ -539,4 +554,23 @@ bool MainWidget::isFiltered() {
 
 void MainWidget::exporter() {
 	
+}
+
+void MainWidget::updatePieChart(map<string, int> mapData) {
+	auto totalCount = fileModelArray.size();
+	QPieSeries *series = new QPieSeries(this);
+	for (auto pair : mapData) {
+		QPieSlice *slice = new QPieSlice(pair.first.c_str(), pair.second, this);
+		slice->setLabelVisible(true);
+		series->append(slice);
+	}
+
+	QChart *chart = new QChart();
+	chart->addSeries(series);
+
+	QChartView *chartview = new QChartView(this);
+	chartview->show();
+	chartview->setChart(chart);
+	chartview->move(1000, 200);
+	chartview->resize(600, 400);
 }
