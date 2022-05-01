@@ -26,8 +26,11 @@ void DCJsonExporter::exportDcmAsJson(string filePath, vector<DCDicomFileModel *>
 			auto element = Utils::decToHex(tagKey->getElement());
 			auto value = file->getStringForTag(*tagKey);
 
+			// 当一个group中的所有element均遍历,将lastGroupPair添加到tagPair中
 			if (group != lastGroup) {
-				tagPair.insert(group.c_str(), lastGroupPair);
+				if (index != 0)
+					tagPair.insert(lastGroup.c_str(), lastGroupPair);
+				lastGroupPair = QJsonObject();
 				lastGroup = group;
 			}
 
@@ -42,7 +45,7 @@ void DCJsonExporter::exportDcmAsJson(string filePath, vector<DCDicomFileModel *>
 
 	QJsonDocument document;
 	document.setArray(*array);
-	QByteArray byteArray = document.toJson(QJsonDocument::Compact);
+	QByteArray byteArray = document.toJson(QJsonDocument::Indented);
 
 	QFile file(filePath.c_str());
 	if (!file.open(QIODevice::ReadWrite))

@@ -97,6 +97,8 @@ public slots:
 
 	void saveAsAction();
 
+	void importAction();
+
 	bool applyChangesToFile(DCDicomFileModel *filemodel, string newFileName = "");
 
 	void showAllTag();

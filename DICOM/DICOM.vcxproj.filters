@@ -101,7 +101,10 @@
       <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="DCJsonExporter.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="DCJsonImporter.cpp">
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +154,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DCJsonExporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DCJsonImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

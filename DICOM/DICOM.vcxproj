@@ -112,6 +112,7 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClCompile Include="DCImageConvertManager.cpp" />
     <ClCompile Include="DCImageManager.cpp" />
     <ClCompile Include="DCJsonExporter.cpp" />
+    <ClCompile Include="DCJsonImporter.cpp" />
     <ClCompile Include="DCListView.cpp" />
     <ClCompile Include="DCTableWidget.cpp" />
     <ClCompile Include="DCScopeModel.cpp" />
@@ -149,6 +150,7 @@ ofstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClInclude Include="DCImageConvertManager.h" />
     <ClInclude Include="DCImageManager.h" />
     <ClInclude Include="DCJsonExporter.h" />
+    <ClInclude Include="DCJsonImporter.h" />
     <ClInclude Include="DCListView.h" />
     <QtMoc Include="DCTableWidget.h" />
     <ClInclude Include="DCScopeModel.h" />

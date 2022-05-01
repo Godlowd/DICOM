@@ -28,6 +28,7 @@
 #include "DCAllTagTable.h"
 #include "DCExcelReader.h"
 #include "DCJsonExporter.h"
+#include "DCJsonImporter.h"
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
@@ -420,6 +421,21 @@ void MainWidget::saveAsAction() {
 	}
 }
 
+void MainWidget::importAction()
+{
+	DCJsonImporter importer;
+	QString filePath = QFileDialog::getOpenFileName(
+		this,
+		tr("choose a .json file"),
+		"C:/",
+		tr("DICOM(*.json)"));
+	if (!filePath.isEmpty()) {
+		auto fileModel = importer.genDcmFromJson(filePath.toStdString());
+		fileModelArray.insert(fileModelArray.end(), fileModel.begin(), fileModel.end());
+		updateView(fileModelArray);
+	}
+}
+
 bool MainWidget::applyChangesToFile(DCDicomFileModel *filemodel, string newFileName) {
 	auto status = filemodel->applyChanges(newFileName);
 	if (status) {
@@ -486,6 +502,9 @@ void MainWidget::setupMenu(){
 	QAction *openAction = new QAction(QString::fromLocal8Bit("打开文件夹"));
 	connect(openAction, SIGNAL(triggered()), this, SLOT(readFileinFolder()));
 	openMenu->addAction(openAction);
+	QAction *importAction = new QAction(QString::fromLocal8Bit("导入"));
+	connect(importAction, SIGNAL(triggered()), this, SLOT(importAction()));
+	openMenu->addAction(importAction);
 	QAction *saveAction = new QAction(QString::fromLocal8Bit("保存"));
 	connect(saveAction, SIGNAL(triggered()), this, SLOT(saveAction()));
 	openMenu->addAction(saveAction);
