@@ -22,6 +22,7 @@
 #include "FilterWidget.h"
 #include "DCTableWidgetProtocol.h"
 
+class QLabel;
 class MainWidget : public QWidget, public DCTableWidgetProtocol
 {
     Q_OBJECT
@@ -107,6 +108,7 @@ private:
 	std::vector<std::vector<DcmTagKey>> seriesVec;
 	std::vector<DCTableWidget *> tableVec;
 	std::vector<DCScopeModel *> scopeVector;
+	QLabel *abbrePictureLabel;
 
 	std::string lastPath;
 
@@ -133,6 +135,12 @@ private:
 	void exporter();
 
 	void updatePieChart(map<string, int> mapData);
+
+	void updateAbbrePicture(DCDicomFileModel * file);
+
+	bool ucharArrayToPixmap(uchar * data, int w, int h, int bitSize, QPixmap & pixmap, int biBitCount);
+
+	void setupAbbrePic();
 
 	/**
 	 * @brief Compress dicom image.

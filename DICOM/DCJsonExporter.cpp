@@ -23,7 +23,15 @@ void DCJsonExporter::exportDcmAsJson(string filePath, vector<DCDicomFileModel *>
 		for (int index = 0; index < tagArray.size(); index++) {
 			auto tagKey = tagArray.at(index);
 			auto group = Utils::decToHex(tagKey->getGroup());
+			while (group.size() < 4)
+			{
+				group = "0" + group;
+			}
 			auto element = Utils::decToHex(tagKey->getElement());
+			while (element.size() < 4)
+			{
+				element = "0" + element;
+			}
 			auto value = file->getStringForTag(*tagKey);
 
 			// 当一个group中的所有element均遍历,将lastGroupPair添加到tagPair中

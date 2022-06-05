@@ -3,7 +3,7 @@
 #include "MainWidget.h"
 #include <algorithm>
 
-#define LIST_WIDTH 1500
+#define LIST_WIDTH 800
 #define LIST_HEIGHT 280
 DCTableWidget::DCTableWidget(QWidget *parent, vector<string> headerName, int tableIndex, MainWidget * delegate, bool adjustContent) :
 	QTableWidget(parent),

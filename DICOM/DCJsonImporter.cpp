@@ -4,7 +4,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QFile>
-vector<DCDicomFileModel*> DCJsonImporter::genDcmFromJson(string filepath)
+#include "RawDataReader.h"
+vector<DCDicomFileModel*> DCJsonImporter::genDcmFromJson(string filepath, string rawDataPath, int xSize, int ySize, int zSize)
 {
 	vector<DCDicomFileModel*> result;
 	QFile file(filepath.c_str());
@@ -70,6 +71,40 @@ vector<DCDicomFileModel*> DCJsonImporter::genDcmFromJson(string filepath)
 						}
 					}
 
+					if (rawDataPath != "") {
+						RawDataReader *rawDataReader = new RawDataReader(xSize, ySize, zSize);
+						auto rawData = rawDataReader->readRawDataFromFile(rawDataPath);
+
+						auto biggestValue = rawDataReader->getBiggestValue();
+
+						int16_t* imagePixel = new int16_t[xSize * ySize]();
+
+						for (int row = 0; row < xSize; row++) {
+							for (int col = 0; col < ySize; col++) {
+								imagePixel[row * ySize + col] = 2;
+								// imagePixel[row * ySize + col] = static_cast<int16_t>(rawData[zSize / 2 * xSize * ySize + row * ySize + col] / biggestValue);
+							}
+						}
+						//fill DcmDataset
+						fileFormat.getDataset()->putAndInsertString(DCM_SliceThickness, "0.5");
+						fileFormat.getDataset()->putAndInsertString(DCM_PixelSpacing, "0.5\\0.5");
+						fileFormat.getDataset()->putAndInsertString(DCM_PixelRepresentation, "1");
+						fileFormat.getDataset()->putAndInsertUint16(DCM_ImageIndex, 1);
+						fileFormat.getDataset()->putAndInsertString(DCM_InstanceNumber, "1");//图像码：辨识图像的号码.
+						fileFormat.getDataset()->putAndInsertUint16(DCM_SamplesPerPixel, 1);
+						fileFormat.getDataset()->putAndInsertUint16(DCM_NumberOfSlices, 200);
+						fileFormat.getDataset()->putAndInsertUint16(DCM_Rows, static_cast<uint16_t>(xSize));
+						fileFormat.getDataset()->putAndInsertUint16(DCM_Columns, static_cast<uint16_t>(ySize));
+						fileFormat.getDataset()->putAndInsertUint16(DCM_PlanarConfiguration, 0);
+						fileFormat.getDataset()->putAndInsertUint16(DCM_BitsAllocated, 16);
+						fileFormat.getDataset()->putAndInsertUint16(DCM_BitsStored, 16);
+						fileFormat.getDataset()->putAndInsertUint16(DCM_HighBit, 15);
+						fileFormat.getDataset()->putAndInsertOFStringArray(DCM_PhotometricInterpretation, "MONOCHROME2");
+						fileFormat.getDataset()->putAndInsertString(DCM_SpecificCharacterSet, "ISO_IR 192");//增加编码格式为utf-8
+
+						fileFormat.getDataset()->putAndInsertUint8Array(DCM_PixelData, reinterpret_cast<Uint8*>(imagePixel), xSize * ySize * 2);
+					}
+					 
 					fileFormat.saveFile(filename.c_str(), EXS_LittleEndianImplicit);
 					DCDicomFileModel *model = new DCDicomFileModel(fileFormat);
 					result.push_back(model);

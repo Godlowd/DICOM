@@ -11,12 +11,15 @@
 #include <qpieslice.h>
 #include <QPieSlice>
 #include <QtCharts>
+#include <QLabel>
 
 #include "dcmtk/dcmjpeg/djencode.h"
 #include "dcmtk/dcmjpeg/djrplol.h"
 #include "dcmtk/dcmdata/dcrledrg.h"
 #include "dcmtk/dcmjpeg/dipijpeg.h"
 #include "dcmtk/dcmjpeg/djdecode.h"
+#include "dcmtk/dcmimgle/dcmimage.h"
+#include "dcmtk/dcmjpeg/dipijpeg.h"
 
 #include "MainWidget.h"
 #include "DCDicomFileModel.h"
@@ -32,6 +35,8 @@
 #include "DCExcelReader.h"
 #include "DCJsonExporter.h"
 #include "DCJsonImporter.h"
+#include "DCXMLWriter.h"
+#include "DCXMLReader.h"
 
 #define PROGRAM_WIDTH 1920
 #define PROGRAM_HEIGHT 1080
@@ -46,6 +51,8 @@ MainWidget::MainWidget():scopeVector(), tableVec(), fileModelArray(), selectedRo
 	m_filterWidget = nullptr;
 
 	setupMenu();
+
+	setupAbbrePic();
 
 	DCScopeModel *patientScope = new DCScopeModel(CommonTag::PATIENT_TAGS);
 	scopeVector.push_back(patientScope);
@@ -132,6 +139,11 @@ void MainWidget::openFile()
 //	refresh();
 //	return;
 //}
+void MainWidget::setupAbbrePic() {
+	abbrePictureLabel = new QLabel(this);
+	abbrePictureLabel->resize(800, 600);
+	abbrePictureLabel->move(1000, 20);
+}
 
 void MainWidget::compressImg(std::string newFilePath)
 {
@@ -290,6 +302,11 @@ void MainWidget::sectionChoose(int index)
 		table->setSelectionBehavior(QAbstractItemView::SelectRows);
 		table->setCurrentCell(index, QItemSelectionModel::Select);
 	}
+
+	if (!isFiltered())
+		updateAbbrePicture(fileModelArray.at(index));
+	else
+		updateAbbrePicture(filteredModelArray.at(index));
 	
 	selectedRow = index;
 }
@@ -439,14 +456,33 @@ void MainWidget::saveAsAction() {
 void MainWidget::importAction()
 {
 	DCJsonImporter importer;
+
 	QString filePath = QFileDialog::getOpenFileName(
 		this,
-		tr("choose a .json file"),
+		tr("choose a midware file"),
 		"C:/",
-		tr("DICOM(*.json)"));
+		tr("DICOM(*.json *.xml)"));
+	QString rawDataPath = QFileDialog::getOpenFileName(
+		this,
+		tr("choose a raw data file"),
+		"C:/",
+		tr("DICOM(*.dat)"));
+
 	if (!filePath.isEmpty()) {
-		auto fileModel = importer.genDcmFromJson(filePath.toStdString());
-		fileModelArray.insert(fileModelArray.end(), fileModel.begin(), fileModel.end());
+		vector<DCDicomFileModel *> fileModel;
+		if (QFileInfo(filePath).suffix() == "xml") {
+			DCXMLReader xmlReader;
+			fileModel = xmlReader.genDcmFromXML(filePath.toStdString());
+		}
+		else if (QFileInfo(filePath).suffix() == "json") {
+			if (!rawDataPath.isEmpty())
+				fileModel = importer.genDcmFromJson(filePath.toStdString(), rawDataPath.toStdString());
+			else
+				fileModel = importer.genDcmFromJson(filePath.toStdString());
+			fileModelArray.insert(fileModelArray.end(), fileModel.begin(), fileModel.end());
+		}
+		
+
 		updateView(fileModelArray);
 	}
 }
@@ -508,6 +544,9 @@ void MainWidget::showAllTag() {
 	vector<DCDicomFileModel *> model;
 	model.push_back(selectedDicomFile());
 	exporter->exportDcmAsJson("testForW.json", model);
+
+	DCXMLWriter *xmlWriter = new DCXMLWriter(tagVec);
+	xmlWriter->genXMLFromFileModel(model, "test.xml");
 }
 
 void MainWidget::setupMenu(){
@@ -571,6 +610,87 @@ void MainWidget::updatePieChart(map<string, int> mapData) {
 	QChartView *chartview = new QChartView(this);
 	chartview->show();
 	chartview->setChart(chart);
-	chartview->move(1000, 200);
+	chartview->move(1000, 500);
 	chartview->resize(600, 400);
 }
+
+void MainWidget::updateAbbrePicture(DCDicomFileModel *file) {
+	DicomImage *dicomImg = new DicomImage(file->getFileFormat()->getDataset(), EXS_LittleEndianImplicit);
+	double winWidth, winCenter;
+	file->getFileFormat()->getDataset()->findAndGetFloat64(DCM_WindowWidth, winWidth);
+	file->getFileFormat()->getDataset()->findAndGetFloat64(DCM_WindowCenter, winCenter);
+	dicomImg->setWindow(winCenter, winWidth);
+
+	Uint16 bitsAllocated;
+	file->getFileFormat()->getDataset()->findAndGetUint16(DCM_BitsAllocated, bitsAllocated);
+	Uint16 *pixelData = (Uint16*)(dicomImg->getOutputData(bitsAllocated));
+
+	QPixmap pixmap;
+	void *pDIB = nullptr;
+	int size = 0;
+	bool res;
+	if (dicomImg->isMonochrome())
+	{
+		// 灰度图像
+		size = dicomImg->createWindowsDIB(pDIB, 0, 0, 8, 1, 1);
+		if (!pDIB)
+			return ;
+
+		res = ucharArrayToPixmap((uchar *)pDIB, dicomImg->getWidth(), dicomImg->getHeight(), size, pixmap, 8);
+	}
+	else
+	{
+		// RGB图像
+		size = dicomImg->createWindowsDIB(pDIB, 0, 0, 24, 1, 1);
+		if (!pDIB)
+			return ;
+
+		res = ucharArrayToPixmap((uchar *)pDIB, dicomImg->getWidth(), dicomImg->getHeight(), size, pixmap, bitsAllocated);
+	}
+	delete pDIB;
+	abbrePictureLabel->setPixmap(pixmap);
+}
+
+bool MainWidget::ucharArrayToPixmap(uchar *data, int w, int h, int bitSize, QPixmap & pixmap, int biBitCount)
+{
+	//位图文件由四部分依序组成：BITMAPFILEHEADER,BITMAPINFOHEADER,调色板,Image Data。
+	BITMAPFILEHEADER lpfh;// 文件头  固定的14个字节, 描述文件的有关信息
+	BITMAPINFOHEADER lpih;// 固定的40个字节，描述图像的有关信息
+
+	RGBQUAD palette[256];// 调色板RGBQUAD的大小就是256
+	memset(palette, 0, sizeof(palette));
+	for (int i = 0; i < 256; ++i) {
+		palette[i].rgbBlue = i;
+		palette[i].rgbGreen = i;
+		palette[i].rgbRed = i;
+	}
+
+	memset(&lpfh, 0, sizeof(BITMAPFILEHEADER));
+	lpfh.bfType = 0x4d42;//'B''M' must be 0x4D42.
+
+	//the sum bits of BITMAPFILEHEADER,BITMAPINFOHEADER and RGBQUAD;the index byte of the image data.
+	lpfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(palette);
+
+	memset(&lpih, 0, sizeof(BITMAPINFOHEADER));
+	lpih.biSize = sizeof(BITMAPINFOHEADER); //the size of this struct. it is 40 bytes.
+	lpih.biWidth = w;
+	lpih.biHeight = h;
+	lpih.biCompression = BI_RGB;
+	lpih.biPlanes = 1; //must be 1. 
+
+	void *pDIB = data;
+	int size = bitSize;
+	lpih.biBitCount = biBitCount;
+
+	//the size of the whole bitmap file.
+	lpfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(palette) + size;
+
+	QByteArray bmp;
+	bmp.append((char*)&lpfh, sizeof(BITMAPFILEHEADER));
+	bmp.append((char*)&lpih, sizeof(BITMAPINFOHEADER));
+	bmp.append((char*)palette, sizeof(palette));
+	bmp.append((char*)pDIB, size);
+
+	return pixmap.loadFromData(bmp);
+}
+
